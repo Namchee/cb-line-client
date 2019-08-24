@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Wombatable
 
 Wombatable adalah sebuah service yang menyediakan layanan pencarian pengumuman dan jadwal kosong di lingkungan Universitas Katolik Parahyangan.
