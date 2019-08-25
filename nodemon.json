@@ -1,0 +1,11 @@
+{
+    "verborse": true,
+    "ext": ".ts",
+    "exec": "ts-node ./src/main.ts",
+    "watch": [
+        "src"
+    ],
+    "env": {
+        "NODE_ENV": "dev"
+    }
+}
