@@ -4,10 +4,6 @@ export interface ClientDocument extends Document {
   client_id: string;
 }
 
-export interface Client {
-  readonly client_id: string;
-}
-
 const schema = new Schema({
   client_id: {
     type: String,

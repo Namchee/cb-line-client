@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { ClientDocument, Client } from '../model/client';
+import { ClientDocument } from '../model/client';
 import { toEntity } from './mapper/client';
 
 export class ClientRepository {

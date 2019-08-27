@@ -5,11 +5,6 @@ export interface UserDocument extends Document {
   npm: string;
 }
 
-export interface User {
-  readonly user_id: string;
-  readonly npm: string;
-}
-
 const schema = new Schema({
   user_id: {
     type: String,

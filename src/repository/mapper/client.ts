@@ -1,4 +1,4 @@
-import { ClientDocument, Client } from '../../model/client';
+import { ClientDocument } from '../../model/client';
 
 export function toEntity(clientDocument: ClientDocument): Client {
   return {

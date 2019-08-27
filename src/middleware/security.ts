@@ -10,7 +10,7 @@ export function encryptedOnly(
       .json({
         data: null,
         errors: [
-          'Request is not sent via secure line',
+          'Request is not sent via secure protocol',
         ],
       });
   } else {
