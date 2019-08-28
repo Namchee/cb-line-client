@@ -1,17 +1,12 @@
-import { LineService, LineResponse } from './line-service';
+import { LineResponse } from './line-service';
 import { UserRepository } from '../../repository/user';
 import { LineMessage } from './messages/factory';
+import { DaftarService } from '../base/daftar';
+import { Service } from '../service';
 
-export class LineDaftarService extends LineService {
-  private readonly userRepository: UserRepository;
-
-  public constructor(repository: UserRepository) {
-    super();
-    this.userRepository = repository;
-  }
-
-  protected determineState(text: string): number {
-    return 0;
+export class LineDaftarService extends DaftarService implements Service<LineResponse, LineMessage> {
+  public constructor(state: number, text: string, repository: UserRepository) {
+    super(state, text, repository);
   }
 
   protected formatMessage(
@@ -21,19 +16,16 @@ export class LineDaftarService extends LineService {
 
   }
 
-  public handle(state: number, text: string): LineResponse {
-    if (state === -1) {
-      state = this.determineState(text);
-    }
+  public async handle(id: string): LineResponse {
+    const fragments: string[] = this.text.split(' ');
 
-    const fragments: string[] = text.split(' ');
-
-    switch (state) {
-      case 0: {
-
-      }
+    switch (this.state) {
       case 1: {
-
+        break;
+      }
+      default: {
+        // TODO: VALIDATE NPM
+        await this.userRepository.create(`line@${id}`, fragments[1]);
       }
     }
   }
