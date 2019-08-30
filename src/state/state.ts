@@ -1,7 +1,7 @@
 export interface State {
   service: string;
   state: number;
-  text: string;
+  last_updated: Date;
 }
 
 export class UserState {
@@ -12,14 +12,14 @@ export class UserState {
     id: string,
     service: string,
     state: number,
-    text: string
+    last_updated: Date,
   ): void {
     UserState.userState.set(
       `${provider}@${id}`,
       {
         service,
         state,
-        text,
+        last_updated,
       },
     );
   }
@@ -33,14 +33,14 @@ export class UserState {
     id: string,
     service: string,
     state: number,
-    text: string
+    last_updated: Date,
   ): void {
     UserState.userState.set(
       `${provider}@${id}`,
       {
         service,
         state,
-        text,
+        last_updated,
       },
     );
   }

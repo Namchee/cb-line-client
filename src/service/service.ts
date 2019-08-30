@@ -1,7 +1,4 @@
-export interface Service<T, U> {
-  handle(id: string): T;
-  formatMessage(): U;
-}
+import { LineMessage } from './line/messages/factory';
 
 export abstract class ErrorHandler<T> {
   public abstract handleExpiredSession(): T;
@@ -9,12 +6,15 @@ export abstract class ErrorHandler<T> {
   public abstract handleCustomError(error: Error): T;
 }
 
-export abstract class StatefulService {
-  protected state: number;
-  protected readonly text: string;
+export interface LineResponse {
+  state: number;
+  message: LineMessage;
+}
 
-  public constructor(state: number, text: string) {
-    this.state = state;
-    this.text = text;
-  }
+export interface LineService {
+  handle(
+    id: string,
+    state?: number,
+    text?: string
+  ): LineResponse | Promise<LineResponse>;
 }

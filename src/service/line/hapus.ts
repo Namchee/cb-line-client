@@ -1,10 +1,10 @@
-import { LineResponse, LineService } from './../service';
+import { LineResponse, LineService } from '../service';
 import { UserRepository } from '../../repository/user';
 import { LineMessage, TextMessage } from './messages/factory';
 import { UserService } from '../base/user';
 import { OpcodeError } from '../../types/error';
 
-export class LineDaftarService extends UserService implements LineService {
+export class LineHapusService extends UserService implements LineService {
   public constructor(repository: UserRepository) {
     super(repository);
   }
@@ -18,12 +18,9 @@ export class LineDaftarService extends UserService implements LineService {
     state: number,
     text: string,
   ): Promise<LineResponse> {
-    if (await this.checkUserExistence(`line@${id}`)) {
+    if (await !this.checkUserExistence(`line@${id}`)) {
       throw new Error(
-        `Akun ini sudah terdaftar dengan sebuah NPM
-        
-        Apabila anda ingin mengganti NPM, gunakan perintah \`ganti\`
-        Apabila anda ingin mengahpus akun, gunakan perintah \`hapus\`.`
+        `Akun ini tidak terdaftar dengan NPM manapun.`
       );
     }
 
@@ -43,13 +40,13 @@ export class LineDaftarService extends UserService implements LineService {
   ): Promise<LineResponse> {
     const fragments = text.split(' ');
 
-    if (fragments[0] !== 'daftar') {
+    if (fragments[0] !== 'hapus') {
       throw new Error('Holy cow! This shouldn\'t happen');
     }
 
     if (fragments.length === 1) {
       const message = this.formatMessage(
-        'Mohon masukkan NPM anda untuk diasosiasikan dengan akun LINE ini'
+        'Mohon masukkan NPM yang diasosiasikan dengan akun LINE ini'
       );
 
       return {
@@ -64,10 +61,25 @@ export class LineDaftarService extends UserService implements LineService {
           'NPM yang anda masukkan salah, mohon masukkan NPM yang benar'
         );
       }
-      await this.userRepository.create(`line@${id}`, text);
+
+      const npm = await this.userRepository.find(`line@${id}`);
+
+      if (npm === null) {
+        throw new Error(
+          `Akun ini tidak terdaftar dengan NPM manapun.`
+        );
+      }
+
+      if (npm.npm !== fragments[1]) {
+        throw new Error(
+          `NPM yang anda masukkan salah. Mohon ketik ulang NPM anda.`
+        );
+      }
+
+      await this.userRepository.delete(`line@${id}`);
 
       const message = this.formatMessage(
-        `Akun berhasil dibuat untuk NPM \`${text}\``
+        `Akun berhasil dihapus`
       );
 
       return {
@@ -89,10 +101,24 @@ export class LineDaftarService extends UserService implements LineService {
       );
     }
 
-    await this.userRepository.create(`line@${id}`, text);
+    const npm = await this.userRepository.find(`line@${id}`);
+
+    if (npm === null) {
+      throw new Error(
+        `Akun ini tidak terdaftar dengan NPM manapun.`
+      );
+    }
+
+    if (npm.npm !== text) {
+      throw new Error(
+        `NPM yang anda masukkan salah. Mohon ketik ulang NPM anda.`
+      );
+    }
+
+    await this.userRepository.delete(`line@${id}`);
 
     const message = this.formatMessage(
-      `Akun berhasil dibuat untuk NPM \`${text}\``
+      `Akun berhasil dihapus`
     );
 
     return {
