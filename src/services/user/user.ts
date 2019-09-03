@@ -1,4 +1,4 @@
-import { UserRepository } from '../../repository/user';
+import { UserRepository } from '../../repository/db/user';
 
 export abstract class UserService {
   protected readonly userRepository: UserRepository;

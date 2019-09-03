@@ -1,8 +1,9 @@
 import { Model } from 'mongoose';
-import { ClientDocument } from '../model/client';
-import { toEntity } from './mapper/client';
+import { ClientDocument, Client } from '../../model/client';
+import { toEntity } from '../mapper/client';
+import { Repository } from '../base';
 
-export class ClientRepository {
+export class ClientRepository implements Repository {
   private readonly model: Model<ClientDocument>;
 
   public constructor(model: Model<ClientDocument>) {

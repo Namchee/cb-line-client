@@ -1,5 +1,8 @@
-import { UserRepository } from './user';
-import { ClientRepository } from './client';
+import { TYPES } from '../types/symbol';
+import { Repository } from './base';
+
+import { UserRepository } from './db/user';
+import { ClientRepository } from './db/client';
 
 import { modelContainer } from './../model/container';
 import { UserDocument } from '../model/user';
@@ -7,15 +10,16 @@ import { Model } from 'mongoose';
 import { ClientDocument } from '../model/client';
 
 const userRepository = new UserRepository(
-    modelContainer.get('user') as Model<UserDocument>
+    modelContainer.get(TYPES.userModel) as Model<UserDocument>
 );
 
 const clientRepository = new ClientRepository(
-  modelContainer.get('client') as Model<ClientDocument>
+  modelContainer.get(TYPES.clientModel) as Model<ClientDocument>
 );
 
-export const repositoryContainer = {
-  userRepository,
-  clientRepository,
-};
+const repositoryContainer = new Map<symbol, Repository>();
 
+repositoryContainer.set(TYPES.clientRepository, clientRepository);
+repositoryContainer.set(TYPES.userRepository, userRepository);
+
+export { repositoryContainer };

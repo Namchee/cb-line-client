@@ -1,8 +1,9 @@
-import { UserDocument, User } from '../model/user';
+import { UserDocument, User } from './../../model/user';
 import { Model } from 'mongoose';
-import { toEntity } from './mapper/user';
+import { toEntity } from './../mapper/user';
+import { Repository } from './../base';
 
-export class UserRepository {
+export class UserRepository implements Repository {
   private readonly model: Model<UserDocument>;
 
   public constructor(model: Model<UserDocument>) {

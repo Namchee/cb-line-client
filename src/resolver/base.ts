@@ -1,14 +1,21 @@
-import { ClientRepository } from '../repository/client';
+import { ClientRepository } from '../repository/db/client';
 import { UserState, State } from './../state/state';
+import { ErrorHandler } from '../service/base/service';
+import { RequestBody, ResponseBody } from '../types/body';
 
-export abstract class Resolver {
+export abstract class Resolver<T> {
   private clientRepository: ClientRepository;
+  private errorHandler: ErrorHandler<T>;
 
-  public constructor(repository: ClientRepository) {
+  public constructor(
+    repository: ClientRepository,
+    errorHandler: ErrorHandler<T>
+  ) {
     this.clientRepository = repository;
+    this.errorHandler = errorHandler;
   }
 
-  private setState(
+  protected setState(
     provider: string,
     id: string,
     service: string,
@@ -34,17 +41,21 @@ export abstract class Resolver {
     }
   }
 
-  private getState(
+  protected getState(
     provider: string,
     id: string
   ): State | undefined {
     return UserState.getState(provider, id);
   }
 
-  private isClientRegistered(
+  protected isClientRegistered(
     provider: string,
     client: string
   ): Promise<boolean> {
     return this.clientRepository.exist(`${provider}@${client}`);
   }
+
+  public abstract async handleClientRequest(
+    request: RequestBody
+  ): Promise<ResponseBody>;
 }

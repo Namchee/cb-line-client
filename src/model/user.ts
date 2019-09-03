@@ -1,5 +1,10 @@
 import { Schema, Document, model } from 'mongoose';
 
+export interface User {
+  readonly user_id: string;
+  readonly npm: string;
+}
+
 export interface UserDocument extends Document {
   user_id: string;
   npm: string;

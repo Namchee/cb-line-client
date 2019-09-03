@@ -1,4 +1,4 @@
-import { UserDocument } from '../../model/user';
+import { UserDocument, User } from '../../model/user';
 
 export function toEntity(userDocument: UserDocument): User {
   return {

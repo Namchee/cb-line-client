@@ -1,5 +1,9 @@
 import { Schema, Document, model } from 'mongoose';
 
+export interface Client {
+  readonly client_id: string;
+}
+
 export interface ClientDocument extends Document {
   client_id: string;
 }
