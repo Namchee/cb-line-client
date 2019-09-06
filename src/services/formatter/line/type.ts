@@ -13,6 +13,7 @@ export interface CarouselTemplate extends TemplateType {
 }
 
 export interface CarouselItem {
+  title?: string;
   text: string;
 }
 

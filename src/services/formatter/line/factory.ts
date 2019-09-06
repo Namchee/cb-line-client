@@ -5,6 +5,8 @@ import {
   ActionButton,
   CarouselItem,
 } from './type';
+import { Button } from '../type';
+import { isButtonArray, isStringArray } from '../typeguards';
 
 export abstract class LineMessage {
   public readonly type: string;
@@ -77,14 +79,18 @@ export function generateActionButton(
   text: string
 ): ActionButton {
   return {
-    type: 'text',
+    type: 'message',
     label,
     text,
   };
 }
 
-export function generateCarouselItem(text: string): CarouselItem {
+export function generateCarouselItem(
+  text: string,
+  title?: string
+): CarouselItem {
   return {
+    title: title || undefined,
     text,
   };
 }
@@ -105,4 +111,18 @@ export function generateCarouselTemplate(
     type: 'carousel',
     columns: items,
   };
+}
+
+export function generateLineMessage(message: any): any {
+  if (isButtonArray(message)) {
+    for (const button of message) {
+      
+    }
+  } else if (isStringArray(message)) {
+
+  } else if (typeof message === 'string') {
+
+  } else {
+    throw new Error('Unsupported types');
+  }
 }
