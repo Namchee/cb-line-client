@@ -1,3 +1,4 @@
+import './database/connection';
 import express from 'express';
 import logger from 'morgan';
 

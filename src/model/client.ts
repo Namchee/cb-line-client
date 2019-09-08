@@ -1,4 +1,5 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document } from 'mongoose';
+import { connection } from './../database/connection';
 
 export interface Client {
   readonly client_id: string;
@@ -17,4 +18,4 @@ const schema = new Schema({
   },
 });
 
-export const Client = model<ClientDocument>('Client', schema);
+export const Client = connection.model<ClientDocument>('Client', schema);

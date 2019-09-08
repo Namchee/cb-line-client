@@ -6,5 +6,6 @@ export function sanitizeInput(
   res: Express.Response,
   next: NextFunction): void {
   sanitize('*').trim().escape();
+
   next();
 }

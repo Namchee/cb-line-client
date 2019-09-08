@@ -1,4 +1,5 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document } from 'mongoose';
+import { connection } from '../database/connection';
 
 export interface User {
   readonly user_id: string;
@@ -25,4 +26,4 @@ const schema = new Schema({
   },
 });
 
-export const User = model<UserDocument>('LineUser', schema);
+export const User = connection.model<UserDocument>('LineUser', schema);

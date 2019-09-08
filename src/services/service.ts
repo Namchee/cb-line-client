@@ -1,6 +1,8 @@
+import { Button } from './formatter/type';
+
 export interface ServiceResult {
   state: number;
-  message: string | string[];
+  message: string | string[] | Button[];
 }
 
 export interface Service {

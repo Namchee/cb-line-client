@@ -44,4 +44,11 @@ export class UserState {
       },
     );
   }
+
+  public static deleteState(
+    provider: string,
+    id: string
+  ): void {
+    UserState.userState.delete(`${provider}@${id}`);
+  }
 }

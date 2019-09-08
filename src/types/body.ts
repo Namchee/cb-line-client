@@ -7,11 +7,6 @@ export interface RequestBody {
   };
 }
 
-export interface ResponseBody {
-  data: any;
-  error: string[];
-}
-
 export function isRequestBody(object: any): object is RequestBody {
   return object.provider &&
     typeof object.provider === 'string' &&

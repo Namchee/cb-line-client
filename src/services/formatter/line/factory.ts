@@ -6,7 +6,7 @@ import {
   CarouselItem,
 } from './type';
 import { Button } from '../type';
-import { isButtonArray, isStringArray } from '../typeguards';
+import { isButtonArray, isStringArray } from '../type';
 
 export abstract class LineMessage {
   public readonly type: string;
@@ -87,10 +87,8 @@ export function generateActionButton(
 
 export function generateCarouselItem(
   text: string,
-  title?: string
 ): CarouselItem {
   return {
-    title: title || undefined,
     text,
   };
 }
@@ -113,15 +111,35 @@ export function generateCarouselTemplate(
   };
 }
 
-export function generateLineMessage(message: any): any {
-  if (isButtonArray(message)) {
-    for (const button of message) {
-      
-    }
+export function generateLineMessage(
+  message: string | string[] | Button[]
+): any {
+  if (typeof message === 'string') {
+    return new TextMessage(message);
   } else if (isStringArray(message)) {
+    const carouselItems: CarouselItem[] = [];
 
-  } else if (typeof message === 'string') {
+    for (const item of message) {
+      carouselItems.push(generateCarouselItem(item));
+    }
 
+    const carouselTemplate: CarouselTemplate = generateCarouselTemplate(
+      carouselItems
+    );
+
+    return new CarouselMessage(carouselTemplate);
+  } else if (isButtonArray(message)) {
+    const actionButtons: ActionButton[] = [];
+
+    for (const button of message) {
+      actionButtons.push(generateActionButton(button.label, button.text));
+    }
+
+    const buttonsTemplate: ButtonsTemplate = generateButtonsTemplate(
+      actionButtons
+    );
+
+    return new ButtonsMessage(buttonsTemplate);
   } else {
     throw new Error('Unsupported types');
   }
