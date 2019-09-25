@@ -1,4 +1,5 @@
 import { UserRepository } from '../../repository/db/user';
+import { ParserFactory } from '../parser/factory';
 
 export abstract class UserService {
   protected readonly userRepository: UserRepository;
@@ -12,6 +13,6 @@ export abstract class UserService {
   }
 
   protected isValidNPM(npm: string): boolean {
-    return true;
+    return ParserFactory.isValidNPM(npm);
   }
 }
