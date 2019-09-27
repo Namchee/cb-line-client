@@ -1,9 +1,11 @@
 import { UserRepository } from '../../repository/db/user';
+import { Service } from '../service';
 
-export abstract class UserService {
+export abstract class UserService extends Service {
   protected readonly userRepository: UserRepository;
 
   public constructor(repository: UserRepository) {
+    super();
     this.userRepository = repository;
   }
 

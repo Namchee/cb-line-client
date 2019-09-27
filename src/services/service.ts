@@ -5,8 +5,15 @@ export interface ServiceResult {
   message: string | string[] | Button[];
 }
 
-export interface Service {
-  handle(
+export type ServiceHandler = (
+  id: string,
+  text: string
+) => ServiceResult | Promise<ServiceResult>;
+
+export abstract class Service {
+  protected static handler: ServiceHandler[];
+
+  public abstract handle(
     id: string,
     state: number,
     text: string,

@@ -1,13 +1,13 @@
 import { UserService } from './user';
-
-import { Service, ServiceResult } from './../service';
-
+import { ServiceResult } from './../service';
 import { UserRepository } from './../../repository/db/user';
 import { REPLY } from './reply';
 
-export class HapusService extends UserService implements Service {
+export class HapusService extends UserService {
   public constructor(repository: UserRepository) {
     super(repository);
+
+    HapusService.handler = [this.handleZeroState, this.handleFirstState];
   }
 
   public async handle(
@@ -19,63 +19,42 @@ export class HapusService extends UserService implements Service {
       throw new Error(REPLY.NO_ASSOCIATE);
     }
 
-    switch (state) {
-      case 1: {
-        return this.handleFirstState(id, text);
-      }
-      default: {
-        return this.handleFromStart(id, text);
-      }
+    const fragments = text.split(' ');
+
+    if (fragments.length > 2) {
+      throw new Error(REPLY.WRONG_FORMAT);
     }
+
+    let result: ServiceResult | Promise<ServiceResult> = {
+      state: -1,
+      message: '',
+    };
+
+    for (let i = (state) ? state : 0; i < 2; i++) {
+      result = HapusService.handler[i](id, fragments[i]);
+    }
+
+    return result;
   }
 
-  private async handleFromStart(
+  private async handleZeroState(
     id: string,
     text: string
   ): Promise<ServiceResult> {
-    const fragments = text.split(' ');
-
-    if (fragments[0] !== 'hapus') {
+    if (text !== 'hapus') {
       throw new Error(REPLY.ERROR);
     }
 
-    if (fragments.length === 1) {
-      return {
-        state: 1,
-        message: REPLY.INPUT_ASSOCIATE,
-      };
-    }
-
-    if (fragments.length === 2) {
-      if (!this.isValidNPM(fragments[1])) {
-        throw new Error(REPLY.INVALID_NPM);
-      }
-
-      const user = await this.userRepository.find(id);
-
-      if (user && user.npm !== fragments[1]) {
-        throw new Error(REPLY.MISMATCHED_NPM);
-      }
-
-      await this.userRepository.delete(id);
-
-      return {
-        state: 0,
-        message: REPLY.DELETE_SUCCESS,
-      };
-    } else {
-      throw new Error(REPLY.WRONG_FORMAT);
-    }
+    return {
+      state: 1,
+      message: REPLY.INPUT_ASSOCIATE,
+    };
   }
 
   private async handleFirstState(
     id: string,
     text: string
   ): Promise<ServiceResult> {
-    if (text.split(' ').length > 0) {
-      throw new Error(REPLY.WRONG_FORMAT);
-    }
-
     if (!this.isValidNPM(text)) {
       throw new Error(REPLY.INVALID_NPM);
     }
