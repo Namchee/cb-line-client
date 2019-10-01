@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Error } from './../types/error';
+import { ErrorExt } from '../types/error';
 
 export function errorHandler(
-  err: Error,
+  err: ErrorExt,
   req: Request,
   res: Response,
   next: NextFunction

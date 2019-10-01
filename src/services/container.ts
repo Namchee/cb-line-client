@@ -1,27 +1,38 @@
-import { repositoryContainer } from '../repository/container';
 import { Service } from './service';
 import { DaftarService } from './user/daftar';
-import { TYPES } from '../types/symbol';
-import { UserRepository } from '../repository/db/user';
+import { AccountRepository } from '../repository/account';
 import { GantiService } from './user/ganti';
 import { HapusService } from './user/hapus';
+import { Connection } from 'typeorm';
+import { UserRepository } from '../repository/user';
+import { UserAccountRepository } from '../repository/user-account';
 
-const serviceContainer = new Map<string, Service>();
+export async function initializeServices(
+  conn: Connection
+): Promise<Map<string, Service>> {
+  const serviceContainer = new Map<string, Service>();
 
-const daftarService = new DaftarService(
-  repositoryContainer.get(TYPES.userRepository) as UserRepository
-);
+  const accountRepository = conn.getCustomRepository(AccountRepository);
+  const userRepository = conn.getCustomRepository(UserRepository);
+  const userAccountRepository = conn.getCustomRepository(UserAccountRepository);
 
-const gantiService = new GantiService(
-  repositoryContainer.get(TYPES.userRepository) as UserRepository
-);
+  const daftarService = new DaftarService(accountRepository, userRepository);
 
-const hapusService = new HapusService(
-  repositoryContainer.get(TYPES.userRepository) as UserRepository
-);
+  const gantiService = new GantiService(
+    accountRepository,
+    userRepository,
+    userAccountRepository
+  );
 
-serviceContainer.set('daftar', daftarService);
-serviceContainer.set('ganti', gantiService);
-serviceContainer.set('hapus', hapusService);
+  const hapusService = new HapusService(
+    accountRepository,
+    userRepository,
+    userAccountRepository
+  );
 
-export { serviceContainer };
+  serviceContainer.set('daftar', daftarService);
+  serviceContainer.set('ganti', gantiService);
+  serviceContainer.set('hapus', hapusService);
+
+  return serviceContainer;
+}

@@ -1,11 +1,10 @@
-export interface Error {
-  message: string | object;
+export interface ErrorExt extends Error {
   status?: number;
 }
 
-export function createError(message: string | object, status?: number): Error {
-  return {
-    message,
-    status,
-  };
+export function createError(message: string, status?: number): ErrorExt {
+  const error: ErrorExt = new Error(message);
+  error.status = status;
+
+  return error;
 }

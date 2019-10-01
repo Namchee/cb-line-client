@@ -1,20 +1,24 @@
-import express from 'express';
+import { Router } from 'express';
 import { encryptedOnly } from '../middleware/security';
 import { sanitizeInput } from '../middleware/sanitize';
-import { repositoryContainer } from '../repository/container';
-import { TYPES } from '../types/symbol';
 import { Resolver } from '../resolver/resolver';
-import { ClientRepository } from '../repository/db/client';
-import { errorHandler } from '../middleware/error';
+import { checkRequestFormat } from '../middleware/body';
+import { ClientRepository } from '../repository/client';
+import { connection } from '../database/connection';
+import { initializeServices } from '../services/container';
 
-const router = express.Router();
+export async function initializeRoutes(): Promise<Router> {
+  const router = Router();
 
-const clientRepository = repositoryContainer.get(TYPES.clientRepository);
+  const conn = await connection;
+  const serviceContainer = await initializeServices(conn);
 
-const resolver = new Resolver(clientRepository as ClientRepository);
+  const clientRepository = conn.getCustomRepository(ClientRepository);
 
-router.use(errorHandler);
-router.use(sanitizeInput);
-router.post('/hub', encryptedOnly, resolver.handle);
+  const resolver = new Resolver(clientRepository, serviceContainer);
 
-export { router };
+  router.use(sanitizeInput);
+  router.post('/hub', checkRequestFormat, resolver.handle);
+
+  return router;
+}

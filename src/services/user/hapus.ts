@@ -1,53 +1,63 @@
 import { UserService } from './user';
 import { ServiceResult } from './../service';
-import { UserRepository } from './../../repository/db/user';
-import { REPLY } from './reply';
+import { AccountRepository } from '../../repository/account';
+import { REPLY } from './../reply';
+import { USER_REPLY } from './reply';
+import { UserAccountRepository } from '../../repository/user-account';
+import { UserRepository } from '../../repository/user';
 
 export class HapusService extends UserService {
-  public constructor(repository: UserRepository) {
-    super(repository);
+  private readonly userAccountRepository: UserAccountRepository;
+
+  public constructor(
+    accountRepository: AccountRepository,
+    userRepository: UserRepository,
+    userAccountRepository: UserAccountRepository
+  ) {
+    super(accountRepository, userRepository);
+    this.userAccountRepository = userAccountRepository;
 
     HapusService.handler = [this.handleZeroState, this.handleFirstState];
   }
 
-  public async handle(
+  public handle = async (
     id: string,
     state: number,
     text: string,
-  ): Promise<ServiceResult> {
-    if (await !this.checkUserExistence(id)) {
-      throw new Error(REPLY.NO_ASSOCIATE);
-    }
-
+  ): Promise<ServiceResult> => {
     const fragments = text.split(' ');
 
-    if (fragments.length > 2) {
+    if (fragments.length > (2 - state)) {
       throw new Error(REPLY.WRONG_FORMAT);
     }
 
-    let result: ServiceResult | Promise<ServiceResult> = {
+    let result: ServiceResult = {
       state: -1,
       message: '',
     };
 
     for (let i = (state) ? state : 0; i < 2; i++) {
-      result = HapusService.handler[i](id, fragments[i]);
+      result = await HapusService.handler[i](id, fragments[i]);
+    }
+
+    if (result.state === -1) {
+      throw new Error(REPLY.ERROR);
     }
 
     return result;
   }
 
-  private async handleZeroState(
+  private handleZeroState = async (
     id: string,
     text: string
-  ): Promise<ServiceResult> {
+  ): Promise<ServiceResult> => {
     if (text !== 'hapus') {
       throw new Error(REPLY.ERROR);
     }
 
     return {
       state: 1,
-      message: REPLY.INPUT_ASSOCIATE,
+      message: USER_REPLY.INPUT_ASSOCIATE,
     };
   }
 
@@ -55,21 +65,17 @@ export class HapusService extends UserService {
     id: string,
     text: string
   ): Promise<ServiceResult> {
-    if (!this.isValidNPM(text)) {
-      throw new Error(REPLY.INVALID_NPM);
+    const nomor = await this.userAccountRepository.findUserNomor(text);
+
+    if (nomor === null) {
+      throw new Error(USER_REPLY.NO_ASSOCIATE);
     }
 
-    const user = await this.userRepository.find(id);
-
-    if (user && user.npm !== text) {
-      throw new Error(REPLY.MISMATCHED_NPM);
-    }
-
-    await this.userRepository.delete(id);
+    await this.accountRepository.deleteAccount(id);
 
     return {
       state: 0,
-      message: REPLY.DELETE_SUCCESS,
+      message: USER_REPLY.DELETE_SUCCESS,
     };
   }
 }

@@ -1,16 +1,17 @@
 /* eslint-disable max-len */
 
-export enum REPLY {
-  ERROR = 'Holy smokes, this should not happen.',
-  WRONG_FORMAT ='Permintaan anda tidak dapat dimengerti, mohon perbaiki perintah anda.',
-  NO_ASSOCIATE = 'Akun ini tidak terdaftar dengan NPM manapun.',
-  ALREADY_REGISTERED = 'Akun ini sudah diasosiasikan dengan NPM tertentu.',
-  INPUT_NPM = 'Mohon masukkan NPM yang akan diasosiasikan dengan akun ini.',
-  INVALID_NPM ='NPM yang anda masukkan tidak valid, mohon masukkan ulang NPM anda.',
-  MISMATCHED_NPM = 'NPM yang anda masukkan salah, mohon masukkan ulang NPM anda.',
-  INPUT_ASSOCIATE = 'Mohon masukkan NPM lama yang diasosiasikan dengan akun ini',
-  INPUT_NEW_ASSOCIATE = 'Mohon masukkan NPM baru yang akan diasosiasikan dengan akun ini.',
+/**
+ * User-related service reply, import it ONLY in user-related services
+ */
+export enum USER_REPLY {
+  NO_ASSOCIATE = 'Akun dalam provider ini belum diasosiasikan dengan identitas manapun.',
+  NOT_REGISTERED = 'Nomor identitas ini belum terdaftar.',
+  ALREADY_REGISTERED = 'Identitas ini sudah diasosiasikan dengan akun lain dalam provider yang sama.',
+  INPUT_NOMOR = 'Mohon masukkan nomor identitas yang akan diasosiasikan dengan akun ini.',
+  MISMATCHED_NOMOR = 'Nomor identitas yang anda masukkan salah, mohon masukkan ulang nomor identitas anda.',
+  INPUT_ASSOCIATE = 'Mohon masukkan nomor identitas lama yang diasosiasikan dengan akun ini',
+  INPUT_NEW_ASSOCIATE = 'Mohon masukkan nomor identitas baru yang akan diasosiasikan dengan akun ini.',
   CREATE_SUCCESS = 'Akun berhasil dibuat.',
-  CHANGE_SUCCESS = 'NPM untuk akun berhasil diubah.',
+  CHANGE_SUCCESS = 'Perubahan identitas berhasil dilakukan.',
   DELETE_SUCCESS = 'Akun berhasil dihapus.',
 };

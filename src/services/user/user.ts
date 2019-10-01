@@ -1,19 +1,19 @@
-import { UserRepository } from '../../repository/db/user';
+import { AccountRepository } from '../../repository/account';
 import { Service } from '../service';
+import { UserRepository } from '../../repository/user';
 
 export abstract class UserService extends Service {
   protected readonly userRepository: UserRepository;
 
-  public constructor(repository: UserRepository) {
-    super();
-    this.userRepository = repository;
+  public constructor(
+    accountRepository: AccountRepository,
+    userRepository: UserRepository
+  ) {
+    super(accountRepository);
+    this.userRepository = userRepository;
   }
 
-  protected checkUserExistence(id: string): Promise<boolean> {
-    return this.userRepository.exist(id);
-  }
-
-  protected isValidNPM(npm: string): boolean {
-    return true;
+  protected checkUserExistence = async (nomor: string): Promise<boolean> => {
+    return this.userRepository.exist(nomor);
   }
 }

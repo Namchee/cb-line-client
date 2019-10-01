@@ -1,34 +1,35 @@
-import { ClientRepository } from '../repository/db/client';
+import { ClientRepository } from '../repository/client';
 import { UserState, State } from '../state/state';
-import { isRequestBody } from '../types/body';
+import { RequestBody } from '../types/body';
 import { Request, Response } from 'express';
 import { NextFunction } from 'connect';
 import { provider } from '../types/provider';
-import { serviceContainer } from '../services/container';
 import { createError } from './../types/error';
 import { RESPOND } from './response';
 import { formatMessage } from '../services/formatter/factory';
+import { Service } from '../services/service';
 
 export class Resolver {
-  private clientRepository: ClientRepository;
+  private readonly clientRepository: ClientRepository;
+  private readonly serviceContainer: Map<string, Service>;
 
-  public constructor(repository: ClientRepository) {
+  public constructor(
+    repository: ClientRepository,
+    serviceContainer: Map<string, Service>
+  ) {
     this.clientRepository = repository;
+    this.serviceContainer = serviceContainer;
   }
 
-  public async handle(
+  public handle = async (
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response | void> {
-    const body = req.body;
-
-    if (!isRequestBody(body)) {
-      return next(createError(RESPOND.NO_BODY, 400));
-    }
+  ): Promise<Response | void> => {
+    const body: RequestBody = req.body;
 
     const providerName = provider.get(body.provider);
-    const clientId = `${providerName}@${body.client}`;
+    const clientId = body.client;
     const userId = `${providerName}@${body.message.userId}`;
     const text = body.message.message;
 
@@ -63,7 +64,7 @@ export class Resolver {
       serviceName = text.split(' ')[0];
     }
 
-    const service = serviceContainer.get(serviceName);
+    const service = this.serviceContainer.get(serviceName);
 
     if (!service) {
       const message = formatMessage(providerName, RESPOND.UNPARSEABLE);

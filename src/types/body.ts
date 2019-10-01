@@ -8,13 +8,13 @@ export interface RequestBody {
 }
 
 export function isRequestBody(object: any): object is RequestBody {
-  return object.provider &&
+  return object && object.provider &&
     typeof object.provider === 'string' &&
     object.client &&
     typeof object.client === 'string' &&
     object.message &&
     typeof object.message === 'object' &&
-    object.message.usedId &&
+    object.message.userId &&
     typeof object.message.userId === 'string' &&
     object.message.message &&
     typeof object.message.message === 'string';

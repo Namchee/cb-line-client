@@ -1,4 +1,5 @@
 import { Button } from './formatter/type';
+import { AccountRepository } from '../repository/account';
 
 export interface ServiceResult {
   state: number;
@@ -8,14 +9,23 @@ export interface ServiceResult {
 export type ServiceHandler = (
   id: string,
   text: string
-) => ServiceResult | Promise<ServiceResult>;
+) => Promise<ServiceResult>;
 
 export abstract class Service {
+  protected readonly accountRepository: AccountRepository;
   protected static handler: ServiceHandler[];
+
+  public constructor(accountRepository: AccountRepository) {
+    this.accountRepository = accountRepository;
+  }
+
+  protected checkAccountExistence = async (id: string): Promise<boolean> => {
+    return await this.accountRepository.exist(id);
+  }
 
   public abstract handle(
     id: string,
     state: number,
     text: string,
-  ): ServiceResult | Promise<ServiceResult>;
+  ): Promise<ServiceResult>;
 }

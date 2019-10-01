@@ -1,69 +1,93 @@
 import { UserService } from './user';
 import { ServiceResult } from './../service';
-import { UserRepository } from '../../repository/db/user';
-import { REPLY } from './reply';
+import { AccountRepository } from '../../repository/account';
+import { USER_REPLY } from './reply';
+import { REPLY } from './../reply';
+import { UserRepository } from '../../repository/user';
 
 export class DaftarService extends UserService {
-  public constructor(repository: UserRepository) {
-    super(repository);
+  public constructor(
+    accountRepository: AccountRepository,
+    userRepository: UserRepository
+  ) {
+    super(accountRepository, userRepository);
 
     DaftarService.handler = [this.handleZeroState, this.handleFirstState];
   }
 
-  public async handle(
+  public handle = async (
     id: string,
     state: number,
     text: string,
-  ): Promise<ServiceResult> {
-    if (await this.checkUserExistence(id)) {
-      throw new Error(REPLY.ALREADY_REGISTERED);
+  ): Promise<ServiceResult> => {
+    const exist = await this.checkAccountExistence(id);
+
+    if (exist) {
+      throw new Error(USER_REPLY.ALREADY_REGISTERED);
     }
 
     const fragments = text.split(' ');
 
-    if (fragments.length > 2) {
+    if (fragments.length > (2 - state)) {
       throw new Error(REPLY.WRONG_FORMAT);
     }
 
-    let result: ServiceResult | Promise<ServiceResult> = {
+    let result: ServiceResult = {
       state: -1,
       message: '',
     };
 
     for (let i = (state) ? state : 0; i < 2; i++) {
-      result = DaftarService.handler[i](id, fragments[i]);
+      result = await DaftarService.handler[i](id, fragments[i]);
+    }
+
+    if (result.state === -1) {
+      throw new Error(REPLY.ERROR);
     }
 
     return result;
   }
 
-  private async handleZeroState(
+  private handleZeroState = async (
     id: string,
-    text: string
-  ): Promise<ServiceResult> {
+    text: string,
+  ): Promise<ServiceResult> => {
     if (text !== 'daftar') {
       throw new Error(REPLY.ERROR);
     }
 
     return {
       state: 1,
-      message: REPLY.INPUT_NPM,
+      message: USER_REPLY.INPUT_NOMOR,
     };
   }
 
-  private async handleFirstState(
+  private handleFirstState = async (
     id: string,
-    text: string
-  ): Promise<ServiceResult> {
-    if (!this.isValidNPM(text)) {
-      throw new Error(REPLY.INVALID_NPM);
+    text: string,
+  ): Promise<ServiceResult> => {
+    const provider = id.split('@')[0];
+
+    const user = await this.userRepository.findOne(text);
+
+    if (!user) {
+      throw new Error(USER_REPLY.NOT_REGISTERED);
     }
 
-    await this.userRepository.create(id, text);
+    const clientAccount = await this.accountRepository.findClientAccount(
+      provider,
+      user
+    );
+
+    if (clientAccount) {
+      throw new Error(USER_REPLY.ALREADY_REGISTERED);
+    }
+
+    await this.accountRepository.addAccount(id, user);
 
     return {
       state: 0,
-      message: REPLY.CREATE_SUCCESS,
+      message: USER_REPLY.CREATE_SUCCESS,
     };
   }
 }

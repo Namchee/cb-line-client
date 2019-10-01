@@ -16,6 +16,7 @@ module.exports = {
     'ecmaVersion': 2018,
     'sourceType': 'module',
   },
+  'plugins': ['babel'],
   'rules': {
     'indent': [
       'error',
@@ -42,6 +43,8 @@ module.exports = {
         'requireForBlockBody': true,
       },
     ],
+    'no-invalid-this': 'off',
+    'babel/no-invalid-this': 'off',
     '@typescript-eslint/camelcase': 'off'
   },
 };
