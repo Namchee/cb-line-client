@@ -69,13 +69,25 @@ export class Resolver {
     if (!service) {
       const message = formatMessage(providerName, RESPOND.UNPARSEABLE);
 
-      return next(createError(message));
+      return res.status(500)
+        .json({
+          data: null,
+          error: message,
+        });
     }
 
     try {
-      const result = await service.handle(userId, state, text);
+      const tex = userState ? userState.text + ' ' + text : text;
 
-      this.updateUserState(providerName, userId, serviceName, result.state);
+      const result = await service.handle(userId, state, tex);
+
+      this.updateUserState(
+        providerName,
+        body.message.userId,
+        serviceName,
+        result.state,
+        text
+      );
 
       const message = formatMessage(providerName, result.message);
 
@@ -87,16 +99,21 @@ export class Resolver {
     } catch (err) {
       const message = formatMessage(providerName, err.message);
 
-      return next(createError(message));
+      return res.status(500)
+        .json({
+          data: null,
+          error: message,
+        });
     }
   }
 
-  private updateUserState(
+  private updateUserState = (
     provider: string,
     id: string,
     serviceName: string,
-    state: number
-  ): void {
+    state: number,
+    text: string
+  ): void => {
     const userState = UserState.getState(provider, id);
 
     if (state) {
@@ -106,6 +123,7 @@ export class Resolver {
           id,
           serviceName,
           state,
+          userState.text + ' ' + text,
           new Date()
         );
       } else {
@@ -114,6 +132,7 @@ export class Resolver {
           id,
           serviceName,
           state,
+          text,
           new Date()
         );
       }

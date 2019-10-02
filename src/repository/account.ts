@@ -30,7 +30,7 @@ export class AccountRepository extends Repository<AccountDatabase> {
       .where('account.account = :account_id', { account_id: id })
       .select([
         'account.account',
-        'account.userId',
+        'account.userid',
       ])
       .getOne();
 
@@ -43,13 +43,11 @@ export class AccountRepository extends Repository<AccountDatabase> {
     provider: string,
     user: User
   ): Promise<AccountEntity | null> => {
+    const accountPattern = '\'' + provider + '@%\'';
+
     const accountEntity = await this.repository.createQueryBuilder('account')
-      .where(
-        'account.account LIKE :account AND account.userId = :userId',
-        {
-          account: `${provider}@%`,
-          userId: user.id,
-        })
+      .where(`account.account LIKE ${accountPattern}`)
+      .andWhere(`account.userId = ${user.id}`)
       .select([
         'account.account',
       ])
@@ -74,9 +72,7 @@ export class AccountRepository extends Repository<AccountDatabase> {
       INSERT INTO account
         (account, userId)
       VALUES
-        (${id}, ${user.id})
-      RETURNING
-        (account, user)
+        ('${id}', '${user.id}')
     `);
 
     return this.findOne(id);
@@ -84,15 +80,18 @@ export class AccountRepository extends Repository<AccountDatabase> {
 
   public moveAccount = async (
     id: string,
-    user: User
+    oldUser: User,
+    newUser: User
   ): Promise<AccountEntity | null> => {
-    const deletedAccount = await this.deleteAccount(id);
+    await this.repository.query(`
+      UPDATE account
+      SET
+        userid = '${newUser.id}'
+      WHERE
+        userid = '${oldUser.id}'
+    `);
 
-    if (deletedAccount === null) {
-      return null;
-    }
-
-    return this.addAccount(id, user);
+    return this.findOne(id);
   }
 
   public deleteAccount = async (

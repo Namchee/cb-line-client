@@ -28,7 +28,7 @@ export class DaftarService extends UserService {
 
     const fragments = text.split(' ');
 
-    if (fragments.length > (2 - state)) {
+    if (fragments.length > 2) {
       throw new Error(REPLY.WRONG_FORMAT);
     }
 
@@ -37,7 +37,10 @@ export class DaftarService extends UserService {
       message: '',
     };
 
-    for (let i = (state) ? state : 0; i < 2; i++) {
+    const handlerLength = DaftarService.handler.length;
+    const fragmentsLength = fragments.length;
+
+    for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
       result = await DaftarService.handler[i](id, fragments[i]);
     }
 

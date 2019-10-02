@@ -29,6 +29,7 @@ export class UserRepository
     const userEntity = await this.repository.createQueryBuilder('user')
       .where('user.nomor = :nomor', { nomor })
       .select([
+        'user.id',
         'user.nomor',
         'user.nama',
         'user.role',

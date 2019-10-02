@@ -16,7 +16,7 @@ initializeRoutes().then((router) => {
   app.use(router);
   app.use(errorHandler);
 
-  app.listen(3000, (): void => {
-    console.log('Listening at 3000');
+  app.listen(6969, (): void => {
+    console.log('Listening at 6969');
   });
 });

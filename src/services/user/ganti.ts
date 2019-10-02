@@ -29,9 +29,15 @@ export class GantiService extends UserService {
     state: number,
     text: string,
   ): Promise<ServiceResult> => {
+    const exist = await this.accountRepository.exist(id);
+
+    if (!exist) {
+      throw new Error(USER_REPLY.NO_ASSOCIATE);
+    }
+
     const fragments = text.split(' ');
 
-    if (fragments.length > (3 - state)) {
+    if (fragments.length > 3) {
       throw new Error(REPLY.WRONG_FORMAT);
     }
 
@@ -40,7 +46,10 @@ export class GantiService extends UserService {
       message: '',
     };
 
-    for (let i = (state) ? state : 0; i < 3; i++) {
+    const handlerLength = GantiService.handler.length;
+    const fragmentsLength = fragments.length;
+
+    for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
       result = await GantiService.handler[i](id, fragments[i]);
     }
 
@@ -69,19 +78,7 @@ export class GantiService extends UserService {
     id: string,
     text: string
   ): Promise<ServiceResult> => {
-    const account = await this.accountRepository.findOne(id);
-
-    if (account === null) {
-      throw new Error(USER_REPLY.NO_ASSOCIATE);
-    }
-
-    const userNomor = await this.userAccountRepository.findUserNomor(
-      account.account
-    );
-
-    if (userNomor === null) {
-      throw new Error(USER_REPLY.NOT_REGISTERED);
-    }
+    const userNomor = await this.userAccountRepository.findUserNomor(id);
 
     if (text !== userNomor) {
       throw new Error(USER_REPLY.MISMATCHED_NOMOR);
@@ -97,23 +94,37 @@ export class GantiService extends UserService {
     id: string,
     text: string,
   ): Promise<ServiceResult> => {
-    const provider = text.split('@')[0];
-    const user = await this.userRepository.findOne(text);
+    const provider = id.split('@')[0];
+    const newUser = await this.userRepository.findOne(text);
 
-    if (user === null) {
+    if (newUser === null) {
       throw new Error(USER_REPLY.NOT_REGISTERED);
     }
 
     const clientAccount = await this.accountRepository.findClientAccount(
       provider,
-      user
+      newUser
     );
 
     if (clientAccount) {
       throw new Error(USER_REPLY.ALREADY_REGISTERED);
     }
 
-    await this.accountRepository.moveAccount(id, user);
+    const currentUserAccount = await this.userAccountRepository.findUserNomor(
+      id
+    );
+
+    if (currentUserAccount === null) {
+      throw new Error(REPLY.ERROR);
+    }
+
+    const oldUser = await this.userRepository.findOne(currentUserAccount);
+
+    if (oldUser === null) {
+      throw new Error(REPLY.ERROR);
+    }
+
+    await this.accountRepository.moveAccount(id, oldUser, newUser);
 
     return {
       state: 0,

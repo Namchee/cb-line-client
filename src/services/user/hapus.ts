@@ -25,9 +25,15 @@ export class HapusService extends UserService {
     state: number,
     text: string,
   ): Promise<ServiceResult> => {
+    const exist = await this.checkAccountExistence(id);
+
+    if (!exist) {
+      throw new Error(USER_REPLY.NO_ASSOCIATE);
+    }
+
     const fragments = text.split(' ');
 
-    if (fragments.length > (2 - state)) {
+    if (fragments.length > 2) {
       throw new Error(REPLY.WRONG_FORMAT);
     }
 
@@ -36,7 +42,10 @@ export class HapusService extends UserService {
       message: '',
     };
 
-    for (let i = (state) ? state : 0; i < 2; i++) {
+    const handlerLength = HapusService.handler.length;
+    const fragmentsLength = fragments.length;
+
+    for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
       result = await HapusService.handler[i](id, fragments[i]);
     }
 
@@ -61,14 +70,14 @@ export class HapusService extends UserService {
     };
   }
 
-  private async handleFirstState(
+  private handleFirstState = async (
     id: string,
     text: string
-  ): Promise<ServiceResult> {
-    const nomor = await this.userAccountRepository.findUserNomor(text);
+  ): Promise<ServiceResult> => {
+    const nomor = await this.userAccountRepository.findUserNomor(id);
 
-    if (nomor === null) {
-      throw new Error(USER_REPLY.NO_ASSOCIATE);
+    if (nomor !== text) {
+      throw new Error(USER_REPLY.MISMATCHED_NOMOR);
     }
 
     await this.accountRepository.deleteAccount(id);

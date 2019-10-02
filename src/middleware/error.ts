@@ -7,6 +7,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): Response {
+  console.log(err.message);
   err.status = err.status || 500;
 
   return res.status(err.status)

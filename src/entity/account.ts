@@ -1,13 +1,11 @@
 export class Account {
   public readonly account: string;
-  public readonly userId: number;
 
-  private constructor(account: string, userId: number) {
+  private constructor(account: string) {
     this.account = account;
-    this.userId = userId;
   }
 
-  public static createAccount(account: string, userId: number): Account {
-    return new Account(account, userId);
+  public static createAccount(account: string): Account {
+    return new Account(account);
   }
 }

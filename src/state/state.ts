@@ -1,6 +1,7 @@
 export interface State {
   service: string;
   state: number;
+  text: string;
   last_updated: Date;
 }
 
@@ -12,6 +13,7 @@ export class UserState {
     id: string,
     service: string,
     state: number,
+    text: string,
     last_updated: Date,
   ): void {
     UserState.userState.set(
@@ -19,6 +21,7 @@ export class UserState {
       {
         service,
         state,
+        text,
         last_updated,
       },
     );
@@ -33,6 +36,7 @@ export class UserState {
     id: string,
     service: string,
     state: number,
+    text: string,
     last_updated: Date,
   ): void {
     UserState.userState.set(
@@ -40,6 +44,7 @@ export class UserState {
       {
         service,
         state,
+        text,
         last_updated,
       },
     );
