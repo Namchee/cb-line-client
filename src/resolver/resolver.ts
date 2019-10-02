@@ -1,4 +1,4 @@
-import express, { Response } from 'express';
+import express from 'express';
 
 import { respond } from './respond';
 
@@ -17,8 +17,6 @@ export function mapRequest(
   return Promise.all(req.body.events.map(respond))
     .then(result => res.status(200).json(result))
     .catch((err) => {
-      console.error(err);
-
       res.status(500).end();
     });
 }

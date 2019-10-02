@@ -14,4 +14,5 @@ if (process.env.NODE_ENV === 'dev') {
 export const clientConfig = {
   channelAccessToken: process.env.ACCESS_TOKEN || '',
   channelSecret: process.env.SECRET || '',
+  serviceURL: process.env.SERVICE_URL || '',
 };
