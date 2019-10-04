@@ -8,7 +8,6 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: [
-          { loader: 'ts-loader' },
           { loader: 'babel-loader' },
         ],
         exclude: /node_modules/,
@@ -22,4 +21,5 @@ module.exports = {
     filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  mode: 'production',
 };
