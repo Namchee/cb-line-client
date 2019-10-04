@@ -11,7 +11,9 @@ if (process.env.NODE_ENV === 'dev') {
   app.use(logger('dev'));
 }
 
-app.listen(3000, () => {
-  console.log(`start at 3000`);
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+  console.log(`start at ${port}`);
 });
 
