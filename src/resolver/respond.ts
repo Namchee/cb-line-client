@@ -3,7 +3,6 @@ import axios from 'axios';
 import {
   WebhookEvent,
   MessageAPIResponseBase,
-  TextMessage,
 } from '@line/bot-sdk';
 import { lineClient } from '../line/client';
 import { makeRequest } from './request';
@@ -31,15 +30,6 @@ export async function respond(
     return Promise.resolve(null);
   }
 
-  const text: TextMessage = {
-    type: 'text',
-    text: event.message.text,
-  };
-
-  return lineClient.replyMessage(event.replyToken, text);
-
-  /*
-
   const reqBody = makeRequest(event.source.userId, event.message.text);
 
   try {
@@ -47,7 +37,13 @@ export async function respond(
 
     return lineClient.replyMessage(event.replyToken, response.data.data);
   } catch (err) {
-    return lineClient.replyMessage(event.replyToken, err.response.data.error);
+    if (err.response.data.data) {
+      return lineClient.replyMessage(event.replyToken, err.response.data.data);
+    } else {
+      console.error(`Failed with status code ${err.response.status}`);
+      console.error(err.response.data.error);
+
+      return Promise.resolve(null);
+    }
   }
-  */
 }

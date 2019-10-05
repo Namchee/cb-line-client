@@ -14,6 +14,6 @@ if (process.env.NODE_ENV === 'dev') {
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`start at ${port}`);
+  console.log(`Listening at ${port}`);
 });
 
