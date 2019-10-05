@@ -1,12 +1,14 @@
 import { config } from 'dotenv';
 
-const result = config({
-  path: String.prototype.concat(__dirname, '\\config.env'),
-});
+if (process.env.NODE_ENV === 'dev') {
+  const result = config({
+    path: String.prototype.concat(__dirname, '\\config.env'),
+  });
 
-if (result.error) {
-  console.error('Cannot load config.env');
-  process.exit(1);
+  if (result.error) {
+    console.error('Cannot load config.env');
+    process.exit(1);
+  }
 }
 
 export default {

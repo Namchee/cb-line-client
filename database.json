@@ -8,6 +8,11 @@
         "database": "wombatable"
     },
     "prod": {
-        "driver": "pg"
+        "driver": "pg",
+        "user": "vitpnglkibtkjv",
+        "password": "f8c6cbc25194c311ae3c090171bc73af1e516eeda8b07ef44ed32461a8d8c35f",
+        "host": "ec2-54-221-214-3.compute-1.amazonaws.com",
+        "port": 5432,
+        "database": "d33675hhfpu9gd"
     }
 }
