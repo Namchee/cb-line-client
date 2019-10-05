@@ -11,7 +11,7 @@ export async function initializeRoutes(): Promise<Router> {
   const router = Router();
 
   const conn = await connection;
-  const serviceContainer = await initializeServices(conn);
+  const serviceContainer = initializeServices(conn);
 
   const clientRepository = conn.getCustomRepository(ClientRepository);
 
