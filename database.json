@@ -1,0 +1,13 @@
+{
+    "dev": {
+        "driver": "pg",
+        "user": "namchee",
+        "password": "pcmastercase",
+        "host": "localhost",
+        "port": 5432,
+        "database": "wombatable"
+    },
+    "prod": {
+        "driver": "pg"
+    }
+}

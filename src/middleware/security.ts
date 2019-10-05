@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { createError } from './../types/error';
+import { ServerError } from '../types/error';
+
 const insecure = 'Request is not sent via secure protocol.';
 
 export function encryptedOnly(
@@ -8,7 +9,7 @@ export function encryptedOnly(
   next: NextFunction
 ): void {
   if (!req.secure) {
-    return next(new Error(insecure));
+    return next(new ServerError(insecure, 401));
   }
 
   next();

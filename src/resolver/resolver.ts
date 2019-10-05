@@ -4,10 +4,10 @@ import { RequestBody } from '../types/body';
 import { Request, Response } from 'express';
 import { NextFunction } from 'connect';
 import { provider } from '../types/provider';
-import { createError } from './../types/error';
 import { RESPOND } from './response';
 import { formatMessage } from '../services/formatter/factory';
 import { Service } from '../services/service';
+import { ServerError, isUserError } from '../types/error';
 
 export class Resolver {
   private readonly clientRepository: ClientRepository;
@@ -30,17 +30,18 @@ export class Resolver {
 
     const providerName = provider.get(body.provider);
     const clientId = body.client;
-    const userId = `${providerName}@${body.message.userId}`;
+    const userId = body.message.userId;
+    const formattedId = `${providerName}@${userId}`;
     const text = body.message.message;
 
     if (!providerName) {
-      return next(createError(RESPOND.UNKNOWN_CLIENT, 400));
+      return next(new ServerError(RESPOND.UNKNOWN_CLIENT, 401));
     }
 
     const existence = await this.clientRepository.exist(clientId);
 
     if (!existence) {
-      return next(createError(RESPOND.UNREGISTERED, 401));
+      return next(new ServerError(RESPOND.UNREGISTERED, 401));
     }
 
     const userState = UserState.getState(body.provider, body.message.userId);
@@ -54,7 +55,11 @@ export class Resolver {
 
         const message = formatMessage(providerName, RESPOND.EXPIRED);
 
-        return next(createError(message));
+        return res.status(400)
+          .json({
+            data: message,
+            error: null,
+          });
       }
 
       state = userState.state;
@@ -69,17 +74,17 @@ export class Resolver {
     if (!service) {
       const message = formatMessage(providerName, RESPOND.UNPARSEABLE);
 
-      return res.status(500)
+      return res.status(400)
         .json({
-          data: null,
-          error: message,
+          data: message,
+          error: null,
         });
     }
 
     try {
       const tex = userState ? userState.text + ' ' + text : text;
 
-      const result = await service.handle(userId, state, tex);
+      const result = await service.handle(formattedId, state, tex);
 
       this.updateUserState(
         providerName,
@@ -97,13 +102,17 @@ export class Resolver {
           error: null,
         });
     } catch (err) {
-      const message = formatMessage(providerName, err.message);
+      if (isUserError(err)) {
+        const message = formatMessage(providerName, err.message);
 
-      return res.status(500)
-        .json({
-          data: null,
-          error: message,
-        });
+        return res.status(400)
+          .json({
+            data: message,
+            error: null,
+          });
+      } else {
+        return next(err);
+      }
     }
   }
 

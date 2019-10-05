@@ -5,6 +5,7 @@ import { REPLY } from './../reply';
 import { USER_REPLY } from './reply';
 import { UserAccountRepository } from '../../repository/user-account';
 import { UserRepository } from '../../repository/user';
+import { UserError, ServerError } from '../../types/error';
 
 export class HapusService extends UserService {
   private readonly userAccountRepository: UserAccountRepository;
@@ -28,13 +29,13 @@ export class HapusService extends UserService {
     const exist = await this.checkAccountExistence(id);
 
     if (!exist) {
-      throw new Error(USER_REPLY.NO_ASSOCIATE);
+      throw new UserError(USER_REPLY.NO_ASSOCIATE);
     }
 
     const fragments = text.split(' ');
 
     if (fragments.length > 2) {
-      throw new Error(REPLY.WRONG_FORMAT);
+      throw new UserError(REPLY.WRONG_FORMAT);
     }
 
     let result: ServiceResult = {
@@ -50,7 +51,7 @@ export class HapusService extends UserService {
     }
 
     if (result.state === -1) {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     return result;
@@ -61,7 +62,7 @@ export class HapusService extends UserService {
     text: string
   ): Promise<ServiceResult> => {
     if (text !== 'hapus') {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     return {
@@ -77,7 +78,7 @@ export class HapusService extends UserService {
     const nomor = await this.userAccountRepository.findUserNomor(id);
 
     if (nomor !== text) {
-      throw new Error(USER_REPLY.MISMATCHED_NOMOR);
+      throw new UserError(USER_REPLY.MISMATCHED_NOMOR);
     }
 
     await this.accountRepository.deleteAccount(id);

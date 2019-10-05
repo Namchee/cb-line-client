@@ -5,6 +5,7 @@ import { USER_REPLY } from './reply';
 import { UserRepository } from '../../repository/user';
 import { REPLY } from '../reply';
 import { UserAccountRepository } from '../../repository/user-account';
+import { UserError, ServerError } from '../../types/error';
 
 export class GantiService extends UserService {
   private readonly userAccountRepository: UserAccountRepository;
@@ -32,13 +33,13 @@ export class GantiService extends UserService {
     const exist = await this.accountRepository.exist(id);
 
     if (!exist) {
-      throw new Error(USER_REPLY.NO_ASSOCIATE);
+      throw new UserError(USER_REPLY.NO_ASSOCIATE);
     }
 
     const fragments = text.split(' ');
 
     if (fragments.length > 3) {
-      throw new Error(REPLY.WRONG_FORMAT);
+      throw new UserError(REPLY.WRONG_FORMAT);
     }
 
     let result: ServiceResult = {
@@ -54,7 +55,7 @@ export class GantiService extends UserService {
     }
 
     if (result.state === -1) {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     return result;
@@ -65,7 +66,7 @@ export class GantiService extends UserService {
     text: string,
   ): Promise<ServiceResult> => {
     if (text !== 'ganti') {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     return {
@@ -81,7 +82,7 @@ export class GantiService extends UserService {
     const userNomor = await this.userAccountRepository.findUserNomor(id);
 
     if (text !== userNomor) {
-      throw new Error(USER_REPLY.MISMATCHED_NOMOR);
+      throw new UserError(USER_REPLY.MISMATCHED_NOMOR);
     }
 
     return {
@@ -98,7 +99,7 @@ export class GantiService extends UserService {
     const newUser = await this.userRepository.findOne(text);
 
     if (newUser === null) {
-      throw new Error(USER_REPLY.NOT_REGISTERED);
+      throw new UserError(USER_REPLY.NOT_REGISTERED);
     }
 
     const clientAccount = await this.accountRepository.findClientAccount(
@@ -107,21 +108,23 @@ export class GantiService extends UserService {
     );
 
     if (clientAccount) {
-      throw new Error(USER_REPLY.ALREADY_REGISTERED);
+      throw new UserError(USER_REPLY.ALREADY_REGISTERED);
     }
 
     const currentUserAccount = await this.userAccountRepository.findUserNomor(
       id
     );
 
+    // Shouldn't be executed
     if (currentUserAccount === null) {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     const oldUser = await this.userRepository.findOne(currentUserAccount);
 
+    // Shouldn't be executed
     if (oldUser === null) {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     await this.accountRepository.moveAccount(id, oldUser, newUser);

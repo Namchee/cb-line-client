@@ -4,6 +4,7 @@ import { AccountRepository } from '../../repository/account';
 import { USER_REPLY } from './reply';
 import { REPLY } from './../reply';
 import { UserRepository } from '../../repository/user';
+import { UserError, ServerError } from '../../types/error';
 
 export class DaftarService extends UserService {
   public constructor(
@@ -23,13 +24,13 @@ export class DaftarService extends UserService {
     const exist = await this.checkAccountExistence(id);
 
     if (exist) {
-      throw new Error(USER_REPLY.ALREADY_REGISTERED);
+      throw new UserError(USER_REPLY.ALREADY_REGISTERED);
     }
 
     const fragments = text.split(' ');
 
     if (fragments.length > 2) {
-      throw new Error(REPLY.WRONG_FORMAT);
+      throw new UserError(REPLY.WRONG_FORMAT);
     }
 
     let result: ServiceResult = {
@@ -45,7 +46,7 @@ export class DaftarService extends UserService {
     }
 
     if (result.state === -1) {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     return result;
@@ -56,7 +57,7 @@ export class DaftarService extends UserService {
     text: string,
   ): Promise<ServiceResult> => {
     if (text !== 'daftar') {
-      throw new Error(REPLY.ERROR);
+      throw new ServerError(REPLY.ERROR, 500);
     }
 
     return {
@@ -74,7 +75,7 @@ export class DaftarService extends UserService {
     const user = await this.userRepository.findOne(text);
 
     if (!user) {
-      throw new Error(USER_REPLY.NOT_REGISTERED);
+      throw new UserError(USER_REPLY.NOT_REGISTERED);
     }
 
     const clientAccount = await this.accountRepository.findClientAccount(
@@ -83,7 +84,7 @@ export class DaftarService extends UserService {
     );
 
     if (clientAccount) {
-      throw new Error(USER_REPLY.ALREADY_REGISTERED);
+      throw new UserError(USER_REPLY.ALREADY_REGISTERED);
     }
 
     await this.accountRepository.addAccount(id, user);

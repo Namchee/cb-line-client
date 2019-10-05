@@ -1,15 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { ErrorExt } from '../types/error';
+import { ServerError } from '../types/error';
 
 export function errorHandler(
-  err: ErrorExt,
+  err: ServerError,
   req: Request,
   res: Response,
   next: NextFunction
 ): Response {
-  console.log(err.message);
-  err.status = err.status || 500;
-
   return res.status(err.status)
     .json({
       data: null,

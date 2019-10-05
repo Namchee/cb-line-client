@@ -39,6 +39,7 @@ export class UserState {
     text: string,
     last_updated: Date,
   ): void {
+
     UserState.userState.set(
       `${provider}@${id}`,
       {
