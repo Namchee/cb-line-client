@@ -1,5 +1,5 @@
 import { Button } from './formatter/type';
-import { AccountRepository } from '../repository/account';
+import { UserAccountRepository } from '../repository/user-account';
 
 export interface ServiceResult {
   state: number;
@@ -7,24 +7,22 @@ export interface ServiceResult {
 }
 
 export type ServiceHandler = (
-  id: string,
+  provider: string,
+  account: string,
   text: string
 ) => Promise<ServiceResult>;
 
 export abstract class Service {
-  protected readonly accountRepository: AccountRepository;
+  protected readonly userAccountRepository: UserAccountRepository;
   protected static handler: ServiceHandler[];
 
-  public constructor(accountRepository: AccountRepository) {
-    this.accountRepository = accountRepository;
-  }
-
-  protected checkAccountExistence = async (id: string): Promise<boolean> => {
-    return await this.accountRepository.exist(id);
+  public constructor(userAccountRepository: UserAccountRepository) {
+    this.userAccountRepository = userAccountRepository;
   }
 
   public abstract handle(
-    id: string,
+    provider: string,
+    account: string,
     state: number,
     text: string,
   ): Promise<ServiceResult>;

@@ -5,14 +5,16 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  BaseEntity,
 } from 'typeorm';
 import { User } from './user';
 
 @Entity()
-export class Account extends BaseEntity {
+export class Account {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ type: 'varchar', length: 10 })
+  provider: string;
 
   @Column('text')
   @Index()

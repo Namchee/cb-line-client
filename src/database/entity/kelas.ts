@@ -3,14 +3,13 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
   Column,
-  BaseEntity,
   ManyToOne,
 } from 'typeorm';
 import { MataKuliah } from './mata-kuliah';
 import { Ruangan } from './ruangan';
 
 @Entity()
-export class Kelas extends BaseEntity {
+export class Kelas {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -2,12 +2,11 @@ import {
   Column,
   PrimaryGeneratedColumn,
   Index,
-  BaseEntity,
   Entity,
 } from 'typeorm';
 
 @Entity()
-export class MataKuliah extends BaseEntity {
+export class MataKuliah {
   @PrimaryGeneratedColumn()
   id: number;
 

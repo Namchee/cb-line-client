@@ -4,13 +4,13 @@ import {
   EntityManager,
 } from 'typeorm';
 import { Client as ClientEntity } from '../entity/client';
-import { toEntity } from './mapper/client';
+import { toEntity } from '../services/mapper/client';
 import { Client as ClientDatabase } from '../database/entity/client';
 import { Repository } from './base';
 
 @EntityRepository(ClientDatabase)
 export class ClientRepository
-  extends Repository<ClientDatabase> {
+  extends Repository {
   public constructor(manager: EntityManager) {
     super(manager);
   }

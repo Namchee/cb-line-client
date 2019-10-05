@@ -3,11 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Index,
   Column,
-  BaseEntity,
 } from 'typeorm';
 
 @Entity()
-export class Ruangan extends BaseEntity {
+export class Ruangan {
   @PrimaryGeneratedColumn()
   id: number;
 

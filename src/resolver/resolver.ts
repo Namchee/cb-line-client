@@ -31,7 +31,6 @@ export class Resolver {
     const providerName = provider.get(body.provider);
     const clientId = body.client;
     const userId = body.message.userId;
-    const formattedId = `${providerName}@${userId}`;
     const text = body.message.message;
 
     if (!providerName) {
@@ -84,7 +83,7 @@ export class Resolver {
     try {
       const tex = userState ? userState.text + ' ' + text : text;
 
-      const result = await service.handle(formattedId, state, tex);
+      const result = await service.handle(providerName, userId, state, tex);
 
       this.updateUserState(
         providerName,

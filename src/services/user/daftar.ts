@@ -1,27 +1,26 @@
-import { UserService } from './user';
+import { Service } from './../service';
 import { ServiceResult } from './../service';
-import { AccountRepository } from '../../repository/account';
 import { USER_REPLY } from './reply';
 import { REPLY } from './../reply';
-import { UserRepository } from '../../repository/user';
 import { UserError, ServerError } from '../../types/error';
+import { UserAccountRepository } from '../../repository/user-account';
 
-export class DaftarService extends UserService {
+export class DaftarService extends Service {
   public constructor(
-    accountRepository: AccountRepository,
-    userRepository: UserRepository
+    userAccountRepository: UserAccountRepository
   ) {
-    super(accountRepository, userRepository);
+    super(userAccountRepository);
 
     DaftarService.handler = [this.handleZeroState, this.handleFirstState];
   }
 
   public handle = async (
-    id: string,
+    provider: string,
+    account: string,
     state: number,
     text: string,
   ): Promise<ServiceResult> => {
-    const exist = await this.checkAccountExistence(id);
+    const exist = await this.userAccountRepository.exist(provider, account);
 
     if (exist) {
       throw new UserError(USER_REPLY.ALREADY_REGISTERED);
@@ -42,7 +41,7 @@ export class DaftarService extends UserService {
     const fragmentsLength = fragments.length;
 
     for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
-      result = await DaftarService.handler[i](id, fragments[i]);
+      result = await DaftarService.handler[i](provider, account, fragments[i]);
     }
 
     if (result.state === -1) {
@@ -53,7 +52,8 @@ export class DaftarService extends UserService {
   }
 
   private handleZeroState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string,
   ): Promise<ServiceResult> => {
     if (text !== 'daftar') {
@@ -67,18 +67,17 @@ export class DaftarService extends UserService {
   }
 
   private handleFirstState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string,
   ): Promise<ServiceResult> => {
-    const provider = id.split('@')[0];
-
-    const user = await this.userRepository.findOne(text);
+    const user = await this.userAccountRepository.findUserByNomor(text);
 
     if (!user) {
       throw new UserError(USER_REPLY.NOT_REGISTERED);
     }
 
-    const clientAccount = await this.accountRepository.findClientAccount(
+    const clientAccount = await this.userAccountRepository.findClientAccount(
       provider,
       user
     );
@@ -87,7 +86,7 @@ export class DaftarService extends UserService {
       throw new UserError(USER_REPLY.ALREADY_REGISTERED);
     }
 
-    await this.accountRepository.addAccount(id, user);
+    await this.userAccountRepository.add(provider, account, user);
 
     return {
       state: 0,

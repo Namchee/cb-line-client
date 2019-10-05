@@ -1,32 +1,23 @@
-import { UserService } from './user';
-import { ServiceResult } from './../service';
-import { AccountRepository } from '../../repository/account';
+import { ServiceResult, Service } from './../service';
 import { REPLY } from './../reply';
 import { USER_REPLY } from './reply';
 import { UserAccountRepository } from '../../repository/user-account';
-import { UserRepository } from '../../repository/user';
 import { UserError, ServerError } from '../../types/error';
 
-export class HapusService extends UserService {
-  private readonly userAccountRepository: UserAccountRepository;
-
-  public constructor(
-    accountRepository: AccountRepository,
-    userRepository: UserRepository,
-    userAccountRepository: UserAccountRepository
-  ) {
-    super(accountRepository, userRepository);
-    this.userAccountRepository = userAccountRepository;
+export class HapusService extends Service {
+  public constructor(userAccountRepository: UserAccountRepository) {
+    super(userAccountRepository);
 
     HapusService.handler = [this.handleZeroState, this.handleFirstState];
   }
 
   public handle = async (
-    id: string,
+    provider: string,
+    account: string,
     state: number,
     text: string,
   ): Promise<ServiceResult> => {
-    const exist = await this.checkAccountExistence(id);
+    const exist = await this.userAccountRepository.exist(provider, account);
 
     if (!exist) {
       throw new UserError(USER_REPLY.NO_ASSOCIATE);
@@ -47,7 +38,7 @@ export class HapusService extends UserService {
     const fragmentsLength = fragments.length;
 
     for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
-      result = await HapusService.handler[i](id, fragments[i]);
+      result = await HapusService.handler[i](provider, account, fragments[i]);
     }
 
     if (result.state === -1) {
@@ -58,7 +49,8 @@ export class HapusService extends UserService {
   }
 
   private handleZeroState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string
   ): Promise<ServiceResult> => {
     if (text !== 'hapus') {
@@ -72,16 +64,24 @@ export class HapusService extends UserService {
   }
 
   private handleFirstState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string
   ): Promise<ServiceResult> => {
-    const nomor = await this.userAccountRepository.findUserNomor(id);
+    const user = await this.userAccountRepository.findUserByAccount(
+      provider,
+      account
+    );
 
-    if (nomor !== text) {
+    if (user === null) {
+      throw new ServerError(REPLY.ERROR, 500);
+    }
+
+    if (user.nomor !== text) {
       throw new UserError(USER_REPLY.MISMATCHED_NOMOR);
     }
 
-    await this.accountRepository.deleteAccount(id);
+    await this.userAccountRepository.delete(provider, account);
 
     return {
       state: 0,

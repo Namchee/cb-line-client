@@ -1,18 +1,34 @@
-import { ViewEntity, Connection, ViewColumn, BaseEntity } from 'typeorm';
+import { ViewEntity, Connection, ViewColumn } from 'typeorm';
 import { Account } from './account';
 import { User } from './user';
 
 @ViewEntity({
   expression: (connection: Connection) => connection.createQueryBuilder()
-    .select('account.account', 'id')
-    .addSelect('user.nomor', 'nomor')
+    .select('account.account')
+    .addSelect('account.provider')
+    .addSelect('user.id')
+    .addSelect('user.nomor')
+    .addSelect('user.nama')
+    .addSelect('user.role')
     .from(User, 'user')
     .leftJoin(Account, 'account', 'account.userId = user.id'),
 })
-export class UserAccount extends BaseEntity {
+export class UserAccount {
   @ViewColumn()
   id: string;
 
   @ViewColumn()
+  account: string;
+
+  @ViewColumn()
+  provider: string;
+
+  @ViewColumn()
   nomor: string;
+
+  @ViewColumn()
+  nama: string;
+
+  @ViewColumn()
+  role: string;
 }

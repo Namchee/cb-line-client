@@ -1,22 +1,12 @@
-import { UserService } from './user';
-import { ServiceResult } from '../service';
-import { AccountRepository } from '../../repository/account';
+import { ServiceResult, Service } from '../service';
 import { USER_REPLY } from './reply';
-import { UserRepository } from '../../repository/user';
 import { REPLY } from '../reply';
 import { UserAccountRepository } from '../../repository/user-account';
 import { UserError, ServerError } from '../../types/error';
 
-export class GantiService extends UserService {
-  private readonly userAccountRepository: UserAccountRepository;
-
-  public constructor(
-    accountRepository: AccountRepository,
-    userRepository: UserRepository,
-    userAccountRepository: UserAccountRepository
-  ) {
-    super(accountRepository, userRepository);
-    this.userAccountRepository = userAccountRepository;
+export class GantiService extends Service {
+  public constructor(userAccountRepository: UserAccountRepository) {
+    super(userAccountRepository);
 
     GantiService.handler = [
       this.handleZeroState,
@@ -26,11 +16,12 @@ export class GantiService extends UserService {
   }
 
   public handle = async (
-    id: string,
+    provider: string,
+    account: string,
     state: number,
     text: string,
   ): Promise<ServiceResult> => {
-    const exist = await this.accountRepository.exist(id);
+    const exist = await this.userAccountRepository.exist(provider, account);
 
     if (!exist) {
       throw new UserError(USER_REPLY.NO_ASSOCIATE);
@@ -51,7 +42,7 @@ export class GantiService extends UserService {
     const fragmentsLength = fragments.length;
 
     for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
-      result = await GantiService.handler[i](id, fragments[i]);
+      result = await GantiService.handler[i](provider, account, fragments[i]);
     }
 
     if (result.state === -1) {
@@ -62,7 +53,8 @@ export class GantiService extends UserService {
   }
 
   private handleZeroState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string,
   ): Promise<ServiceResult> => {
     if (text !== 'ganti') {
@@ -76,12 +68,20 @@ export class GantiService extends UserService {
   }
 
   private handleFirstState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string
   ): Promise<ServiceResult> => {
-    const userNomor = await this.userAccountRepository.findUserNomor(id);
+    const user = await this.userAccountRepository.findUserByAccount(
+      provider,
+      account
+    );
 
-    if (text !== userNomor) {
+    if (!user) {
+      throw new ServerError(REPLY.ERROR, 500);
+    }
+
+    if (text !== user.nomor) {
       throw new UserError(USER_REPLY.MISMATCHED_NOMOR);
     }
 
@@ -92,17 +92,17 @@ export class GantiService extends UserService {
   }
 
   private handleSecondState = async (
-    id: string,
+    provider: string,
+    account: string,
     text: string,
   ): Promise<ServiceResult> => {
-    const provider = id.split('@')[0];
-    const newUser = await this.userRepository.findOne(text);
+    const newUser = await this.userAccountRepository.findUserByNomor(text);
 
     if (newUser === null) {
       throw new UserError(USER_REPLY.NOT_REGISTERED);
     }
 
-    const clientAccount = await this.accountRepository.findClientAccount(
+    const clientAccount = await this.userAccountRepository.findClientAccount(
       provider,
       newUser
     );
@@ -111,23 +111,17 @@ export class GantiService extends UserService {
       throw new UserError(USER_REPLY.ALREADY_REGISTERED);
     }
 
-    const currentUserAccount = await this.userAccountRepository.findUserNomor(
-      id
+    const oldUser = await this.userAccountRepository.findUserByAccount(
+      provider,
+      account,
     );
 
-    // Shouldn't be executed
-    if (currentUserAccount === null) {
-      throw new ServerError(REPLY.ERROR, 500);
-    }
-
-    const oldUser = await this.userRepository.findOne(currentUserAccount);
-
-    // Shouldn't be executed
+    // BL error
     if (oldUser === null) {
       throw new ServerError(REPLY.ERROR, 500);
     }
 
-    await this.accountRepository.moveAccount(id, oldUser, newUser);
+    await this.userAccountRepository.move(provider, account, oldUser, newUser);
 
     return {
       state: 0,

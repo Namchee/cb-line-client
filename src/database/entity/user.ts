@@ -5,12 +5,11 @@ import {
   Index,
   ManyToMany,
   JoinTable,
-  BaseEntity,
 } from 'typeorm';
 import { Kelas } from './kelas';
 
 @Entity()
-export class User extends BaseEntity {
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
