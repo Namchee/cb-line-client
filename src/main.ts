@@ -21,4 +21,7 @@ initializeRoutes().then((router) => {
   app.listen(port, (): void => {
     console.log(`Listening at ${port}`);
   });
+}).catch((err) => {
+  console.error(err);
+  process.exit(1);
 });
