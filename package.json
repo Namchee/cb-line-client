@@ -21,6 +21,7 @@
     "pg": "^7.12.1",
     "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.3",
+    "ts-node": "^8.3.0",
     "typeorm": "^0.2.19",
     "typescript": "^3.5.3"
   },
@@ -50,7 +51,6 @@
     "nodemon": "^1.19.1",
     "rimraf": "^3.0.0",
     "ts-loader": "^6.2.0",
-    "ts-node": "^8.3.0",
     "typesync": "^0.6.1",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.7"
