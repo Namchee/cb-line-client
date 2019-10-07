@@ -1,3 +1,4 @@
+import 'regenerator-runtime';
 import express from 'express';
 import bodyParser from 'body-parser';
 import logger from 'morgan';
