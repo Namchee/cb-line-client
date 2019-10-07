@@ -3,6 +3,7 @@ import axios from 'axios';
 import {
   WebhookEvent,
   MessageAPIResponseBase,
+  TextMessage,
 } from '@line/bot-sdk';
 import { lineClient } from '../line/client';
 import { makeRequest } from './request';
@@ -33,12 +34,25 @@ export async function respond(
   const reqBody = makeRequest(event.source.userId, event.message.text);
 
   try {
-    const response = await axios.post(clientConfig.serviceURL, reqBody);
+    const response = await axios({
+      method: 'POST',
+      url: clientConfig.serviceURL,
+      timeout: 5000,
+      data: reqBody,
+    });
 
     return lineClient.replyMessage(event.replyToken, response.data.data);
   } catch (err) {
     if (err.response.data.data) {
       return lineClient.replyMessage(event.replyToken, err.response.data.data);
+    } else if (err.code === 'ECONNABORTED') {
+      const message: TextMessage = {
+        type: 'text',
+        // eslint-disable-next-line max-len
+        text: 'Mohon maaf, namun sepertinya server sedang sibuk. Mohon coba dalam beberapa saat lagi',
+      };
+
+      return lineClient.replyMessage(event.replyToken, message);
     } else {
       console.error(`Failed with status code ${err.response.status}`);
       console.error(err.response.data.error);
