@@ -16,7 +16,9 @@ initializeRoutes().then((router) => {
   app.use(router);
   app.use(errorHandler);
 
-  app.listen(6969, (): void => {
-    console.log('Listening at 6969');
+  const port = process.env.PORT || 6969;
+
+  app.listen(port, (): void => {
+    console.log(`Listening at ${port}`);
   });
 });

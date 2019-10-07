@@ -31,9 +31,13 @@ export class UserAccountRepository
     provider: string,
     account: string
   ): Promise<boolean> => {
-    const count = await this.userAccountRepository.count({ provider, account });
+    const count = await this.userAccountRepository
+      .createQueryBuilder('useraccount')
+      .where('useraccount.provider = :provider', { provider })
+      .andWhere('useraccount.account = :account', { account })
+      .getOne();
 
-    return count >= 1;
+    return count !== undefined;
   }
 
   public findUserByNomor = async (
@@ -89,7 +93,8 @@ export class UserAccountRepository
       .select([
         'useraccount.provider',
         'useraccount.account',
-      ]);
+      ])
+      .getOne();
 
     const cast = clientAccount as unknown as AccountDatabase;
 

@@ -62,6 +62,7 @@ exports.up = function(db, callback) {
   
   CREATE TABLE account (
     id serial PRIMARY KEY,
+    provider varchar(10) NOT NULL,
     account text UNIQUE NOT NULL,
     userId int REFERENCES "user"(id) NOT NULL
   );
@@ -74,9 +75,13 @@ exports.up = function(db, callback) {
   );
   
   CREATE VIEW user_account AS
-    SELECT	
-      account.account AS id,
-      "user".nomor AS nomor
+    SELECT
+      "user".id AS id,
+      "user".nomor AS nomor,
+      "user".nama AS nama,
+      "user".role AS role,
+      account.provider AS provider,
+      account.account AS account
     FROM
       "user" LEFT JOIN account
         ON account.userId = "user".id;
@@ -87,11 +92,26 @@ exports.up = function(db, callback) {
   INSERT INTO "user" (nomor, nama, role)
   VALUES ('2017730023', 'Kevin Draven Kenanga', 0);
   
-  INSERT INTO account (account, userId)
-  VALUES ('line@U5b6d6f86b1ec42727cfdced840671e51', 1);
-
   INSERT INTO "user" (nomor, nama, role)
-  VALUES ('20090002', 'Kristopher David Harjono', 1);`,
+  VALUES ('2017730054', 'William Xaverius Walah', 0);
+  
+  INSERT INTO "user" (nomor, nama, role)
+  VALUES ('20090002', 'Kristopher David Harjono', 1);
+  
+  INSERT INTO account
+  (provider, account, userId)
+  VALUES
+  ('line', 'U5b6d6f86b1ec42727cfdced840671e51', 1);
+      
+  INSERT INTO account
+  (provider, account, userId)
+  VALUES
+  ('line', 'okawokawok', 2);
+  
+  INSERT INTO client 
+  (nama, client_id, url)
+  VALUES
+  ('line', 'fE+shUppcSfq5IEz7rnkPKFBx9nmjAWnykLZK/38j4CpKm41vq57VmvLymDkfR0kYXurTp40HFKUbQs8D1zDYM4eFInxFeYj6fMn1WRwN6Q0fQbMQlM/QQ1FzTjdfuET/nTnNlIiti7aohufECIoKwdB04t89/1O/w1cDnyilFU=', 'https://wombatable-line-client.herokuapp.com/');`,
   callback);
 };
 

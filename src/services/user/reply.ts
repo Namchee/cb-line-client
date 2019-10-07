@@ -11,6 +11,7 @@ export enum USER_REPLY {
   MISMATCHED_NOMOR = 'Nomor identitas yang anda masukkan salah, mohon masukkan ulang nomor identitas anda.',
   INPUT_ASSOCIATE = 'Mohon masukkan nomor identitas lama yang diasosiasikan dengan akun ini',
   INPUT_NEW_ASSOCIATE = 'Mohon masukkan nomor identitas baru yang akan diasosiasikan dengan akun ini.',
+  SAME_NOMOR = 'Nomor identitas yang anda ajukan sama persis dengan nomor identitas lama anda.',
   CREATE_SUCCESS = 'Akun berhasil dibuat.',
   CHANGE_SUCCESS = 'Perubahan identitas berhasil dilakukan.',
   DELETE_SUCCESS = 'Akun berhasil dihapus.',

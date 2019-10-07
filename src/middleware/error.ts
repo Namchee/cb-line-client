@@ -7,7 +7,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): Response {
-  return res.status(err.status)
+  return res.status(err.status || 500)
     .json({
       data: null,
       error: err.message,

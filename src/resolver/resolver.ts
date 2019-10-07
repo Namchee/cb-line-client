@@ -37,7 +37,7 @@ export class Resolver {
       return next(new ServerError(RESPOND.UNKNOWN_CLIENT, 401));
     }
 
-    const existence = await this.clientRepository.exist(clientId);
+    const existence = await this.clientRepository.exist(providerName, clientId);
 
     if (!existence) {
       return next(new ServerError(RESPOND.UNREGISTERED, 401));

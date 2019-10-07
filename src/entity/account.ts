@@ -3,6 +3,7 @@ export class Account {
   public readonly account: string;
 
   private constructor(provider: string, account: string) {
+    this.provider = provider;
     this.account = account;
   }
 

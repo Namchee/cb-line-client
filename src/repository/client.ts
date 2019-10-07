@@ -19,8 +19,12 @@ export class ClientRepository
     return this.manager.getRepository(ClientDatabase);
   }
 
-  public exist = async (id: string): Promise<boolean> => {
-    const count = await this.repository.count({ client_id: id });
+  public exist = async (provider: string, id: string): Promise<boolean> => {
+    const count = await this.repository.count(
+      {
+        nama: provider,
+        client_id: id,
+      });
 
     return count >= 1;
   }
@@ -59,8 +63,11 @@ export class ClientRepository
     return result;
   }
 
-  public create = async (id: string): Promise<ClientEntity | null> => {
-    const exist: boolean = await this.exist(id);
+  public create = async (
+    provider: string,
+    id: string
+  ): Promise<ClientEntity | null> => {
+    const exist: boolean = await this.exist(provider, id);
 
     if (exist) {
       return null;

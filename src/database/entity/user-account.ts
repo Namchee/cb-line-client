@@ -3,6 +3,7 @@ import { Account } from './account';
 import { User } from './user';
 
 @ViewEntity({
+  name: 'user_account',
   expression: (connection: Connection) => connection.createQueryBuilder()
     .select('account.account')
     .addSelect('account.provider')

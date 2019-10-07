@@ -121,6 +121,10 @@ export class GantiService extends Service {
       throw new ServerError(REPLY.ERROR, 500);
     }
 
+    if (oldUser.nomor === text) {
+      throw new UserError(USER_REPLY.SAME_NOMOR);
+    }
+
     await this.userAccountRepository.move(provider, account, oldUser, newUser);
 
     return {
