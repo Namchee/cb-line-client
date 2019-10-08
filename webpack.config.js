@@ -1,3 +1,4 @@
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 const webpack = require('webpack');
 const path = require('path');
 
@@ -24,6 +25,25 @@ module.exports = {
   },
   mode: 'production',
   plugins: [
+    new FilterWarningsPlugin({
+      exclude: [
+        /mongodb/,
+        /mssql/,
+        /mysql/,
+        /mysql2/,
+        /oracledb/,
+        /pg/,
+        /pg-native/,
+        /pg-query-stream/,
+        /redis/,
+        /react-native-sqlite-storage/,
+        /sql/,
+        /sqlite3/,
+      ],
+    }),
     new webpack.IgnorePlugin(/^pg-native$/),
   ],
+  optimization: {
+    minimize: false,
+  },
 };
