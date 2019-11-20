@@ -1,29 +1,34 @@
 import { Button } from './formatter/type';
-import { UserAccountRepository } from '../repository/user-account';
 
 export interface ServiceResult {
   state: number;
   message: string | string[] | Button[];
 }
 
+export interface ServiceParameters {
+  state: number;
+  text: string;
+  account?: string;
+  provider?: string;
+}
+
+export interface HandlerParameters {
+  text: string;
+  account?: string;
+  provider?: string;
+}
+
 export type ServiceHandler = (
-  provider: string,
-  account: string,
-  text: string
+  params: HandlerParameters
 ) => Promise<ServiceResult>;
 
 export abstract class Service {
-  protected readonly userAccountRepository: UserAccountRepository;
-  protected static handler: ServiceHandler[];
+  public userRelated: boolean;
+  protected handler: ServiceHandler[];
 
-  public constructor(userAccountRepository: UserAccountRepository) {
-    this.userAccountRepository = userAccountRepository;
-  }
+  public abstract handle(params: ServiceParameters): Promise<ServiceResult>;
+}
 
-  public abstract handle(
-    provider: string,
-    account: string,
-    state: number,
-    text: string,
-  ): Promise<ServiceResult>;
+export abstract class SmartService extends Service {
+  public identifier: string[];
 }

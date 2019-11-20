@@ -1,4 +1,4 @@
-import { Service } from './../service';
+import { Service, ServiceParameters, HandlerParameters } from './../service';
 import { ServiceResult } from './../service';
 import { USER_REPLY } from './reply';
 import { REPLY } from './../reply';
@@ -6,20 +6,30 @@ import { UserError, ServerError } from '../../types/error';
 import { UserAccountRepository } from '../../repository/user-account';
 
 export class DaftarService extends Service {
+  private readonly userAccountRepository: UserAccountRepository;
+
   public constructor(
     userAccountRepository: UserAccountRepository
   ) {
-    super(userAccountRepository);
+    super();
 
-    DaftarService.handler = [this.handleZeroState, this.handleFirstState];
+    this.handler = [this.handleZeroState, this.handleFirstState];
+    this.userRelated = true;
+    this.userAccountRepository = userAccountRepository;
   }
 
   public handle = async (
-    provider: string,
-    account: string,
-    state: number,
-    text: string,
+    {
+      state,
+      text,
+      account,
+      provider,
+    }: ServiceParameters
   ): Promise<ServiceResult> => {
+    if (!account || !provider) {
+      throw new ServerError(REPLY.ERROR, 500);
+    }
+
     const exist = await this.userAccountRepository.exist(provider, account);
 
     if (exist) {
@@ -37,11 +47,11 @@ export class DaftarService extends Service {
       message: '',
     };
 
-    const handlerLength = DaftarService.handler.length;
+    const handlerLength = this.handler.length;
     const fragmentsLength = fragments.length;
 
     for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
-      result = await DaftarService.handler[i](provider, account, fragments[i]);
+      result = await this.handler[i]({ text: fragments[i], account, provider });
     }
 
     if (result.state === -1) {
@@ -52,9 +62,9 @@ export class DaftarService extends Service {
   }
 
   private handleZeroState = async (
-    provider: string,
-    account: string,
-    text: string,
+    {
+      text,
+    }: HandlerParameters
   ): Promise<ServiceResult> => {
     if (text !== 'daftar') {
       throw new ServerError(REPLY.ERROR, 500);
@@ -67,10 +77,16 @@ export class DaftarService extends Service {
   }
 
   private handleFirstState = async (
-    provider: string,
-    account: string,
-    text: string,
+    {
+      text,
+      account,
+      provider,
+    }: HandlerParameters
   ): Promise<ServiceResult> => {
+    if (!provider || !account) {
+      throw new ServerError(REPLY.ERROR, 500);
+    }
+
     const user = await this.userAccountRepository.findUserByNomor(text);
 
     if (!user) {
