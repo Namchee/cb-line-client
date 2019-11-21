@@ -1,8 +1,8 @@
 import {
-  SmartService,
   ServiceResult,
   HandlerParameters,
   ServiceParameters,
+  SmartService,
 } from '../service';
 import { UserAccountRepository } from '../../repository/user-account';
 import { ServerError } from '../../types/error';
@@ -17,9 +17,10 @@ export class PengumumanService extends SmartService {
     super();
 
     this.userAccountRepository = userAccountRepository;
-    this.identifier = ['cari', 'carikan', 'pengumuman'];
+    this.identifier = 'pengumuman';
     this.userRelated = true;
     this.handler = [this.handleFirstState];
+    this.keywords = ['cari', 'carikan', 'pengumuman'];
   }
 
   public handle = async (

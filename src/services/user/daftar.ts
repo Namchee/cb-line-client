@@ -16,6 +16,7 @@ export class DaftarService extends Service {
     this.handler = [this.handleZeroState, this.handleFirstState];
     this.userRelated = true;
     this.userAccountRepository = userAccountRepository;
+    this.identifier = 'daftar';
   }
 
   public handle = async (

@@ -9,8 +9,8 @@ import { JadwalService } from './smart/jadwal';
 
 export function initializeServices(
   conn: Connection
-): Map<string, Service> {
-  const serviceContainer = new Map<string, Service>();
+): Service[] {
+  const serviceContainer: Service[] = [];
 
   const userAccountRepository = conn.getCustomRepository(UserAccountRepository);
 
@@ -23,12 +23,11 @@ export function initializeServices(
   const pengumumanService = new PengumumanService(userAccountRepository);
   const jadwalService = new JadwalService();
 
-  serviceContainer.set('daftar', daftarService);
-  serviceContainer.set('ganti', gantiService);
-  serviceContainer.set('hapus', hapusService);
-
-  serviceContainer.set('pengumuman', pengumumanService);
-  serviceContainer.set('jadwal', jadwalService);
+  serviceContainer.push(daftarService);
+  serviceContainer.push(gantiService);
+  serviceContainer.push(hapusService);
+  serviceContainer.push(pengumumanService);
+  serviceContainer.push(jadwalService);
 
   return serviceContainer;
 }

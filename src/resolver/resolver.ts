@@ -6,19 +6,20 @@ import { NextFunction } from 'connect';
 import { provider } from '../types/provider';
 import { RESPOND } from './response';
 import { formatMessage } from '../services/formatter/factory';
-import { Service } from '../services/service';
 import { ServerError, isUserError } from '../types/error';
+import { ServiceFactory } from '../services/factory';
+import { Service, ServiceParameters } from '../services/service';
 
 export class Resolver {
   private readonly clientRepository: ClientRepository;
-  private readonly serviceContainer: Map<string, Service>;
+  private readonly serviceFactory: ServiceFactory;
 
   public constructor(
     repository: ClientRepository,
-    serviceContainer: Map<string, Service>
+    serviceFactory: ServiceFactory
   ) {
     this.clientRepository = repository;
-    this.serviceContainer = serviceContainer;
+    this.serviceFactory = serviceFactory;
   }
 
   public handle = async (
@@ -46,7 +47,8 @@ export class Resolver {
     const userState = UserState.getState(body.provider, body.message.userId);
 
     let state: number;
-    let serviceName: string;
+
+    let service = null;
 
     if (userState) {
       if (this.checkRequestExpiration(userState)) {
@@ -62,13 +64,11 @@ export class Resolver {
       }
 
       state = userState.state;
-      serviceName = userState.service;
+      service = this.serviceFactory.createServiceByName(userState.service);
     } else {
       state = 0;
-      serviceName = text.split(' ')[0];
+      service = this.serviceFactory.createService(text);
     }
-
-    const service = this.serviceContainer.get(serviceName);
 
     if (!service) {
       const message = formatMessage(providerName, RESPOND.UNPARSEABLE);
@@ -83,12 +83,20 @@ export class Resolver {
     try {
       const tex = userState ? userState.text + ' ' + text : text;
 
-      const result = await service.handle(providerName, userId, state, tex);
+      const result = await service.handle(
+        this.buildParameters(
+          service,
+          state,
+          tex,
+          clientId,
+          providerName
+        )
+      );
 
       this.updateUserState(
         providerName,
-        body.message.userId,
-        serviceName,
+        userId,
+        service.identifier,
         result.state,
         text
       );
@@ -155,5 +163,27 @@ export class Resolver {
     const lastUpdate = state.last_updated.getTime();
 
     return Date.now() - lastUpdate > 300000;
+  }
+
+  private buildParameters(
+    service: Service,
+    state: number,
+    text: string,
+    account: string,
+    provider: string
+  ): ServiceParameters {
+    if (service.userRelated) {
+      return {
+        state,
+        text,
+        account,
+        provider,
+      };
+    } else {
+      return {
+        state,
+        text,
+      };
+    }
   }
 }

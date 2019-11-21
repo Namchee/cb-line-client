@@ -23,6 +23,7 @@ export type ServiceHandler = (
 ) => Promise<ServiceResult>;
 
 export abstract class Service {
+  public identifier: string;
   public userRelated: boolean;
   protected handler: ServiceHandler[];
 
@@ -30,5 +31,5 @@ export abstract class Service {
 }
 
 export abstract class SmartService extends Service {
-  public identifier: string[];
+  public keywords: string[];
 }

@@ -6,6 +6,7 @@ import { checkRequestFormat } from '../middleware/body';
 import { ClientRepository } from '../repository/client';
 import { connection } from '../database/connection';
 import { initializeServices } from '../services/container';
+import { ServiceFactory } from '../services/factory';
 
 export async function initializeRoutes(): Promise<Router> {
   const router = Router();
@@ -14,8 +15,9 @@ export async function initializeRoutes(): Promise<Router> {
   const serviceContainer = initializeServices(conn);
 
   const clientRepository = conn.getCustomRepository(ClientRepository);
+  const serviceFactory = new ServiceFactory(serviceContainer);
 
-  const resolver = new Resolver(clientRepository, serviceContainer);
+  const resolver = new Resolver(clientRepository, serviceFactory);
 
   router.use(sanitizeInput);
   router.post('/hub', checkRequestFormat, resolver.handle);

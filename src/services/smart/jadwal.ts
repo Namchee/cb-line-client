@@ -1,8 +1,8 @@
 import {
-  SmartService,
   ServiceParameters,
   ServiceResult,
   HandlerParameters,
+  SmartService,
 } from '../service';
 import { ServerError } from '../../types/error';
 import { REPLY } from '../reply';
@@ -11,9 +11,10 @@ export class JadwalService extends SmartService {
   public constructor() {
     super();
 
-    this.identifier = ['cari', 'carikan', 'jadwal', 'kosong'];
+    this.identifier = 'jadwal';
     this.userRelated = false;
     this.handler = [this.handleFirstState];
+    this.keywords = ['cari', 'carikan', 'jadwal', 'kosong'];
   }
 
   public handle = async (

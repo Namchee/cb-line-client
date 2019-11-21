@@ -23,6 +23,7 @@ export class GantiService extends Service {
 
     this.userRelated = true;
     this.userAccountRepository = userAccountRepository;
+    this.identifier = 'ganti';
   }
 
   public handle = async (
