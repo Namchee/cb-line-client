@@ -81,13 +81,13 @@ export class Resolver {
     }
 
     try {
-      const tex = userState ? userState.text + ' ' + text : text;
+      const processedText = userState ? userState.text + ' ' + text : text;
 
       const result = await service.handle(
         this.buildParameters(
           service,
           state,
-          tex,
+          processedText,
           clientId,
           providerName
         )

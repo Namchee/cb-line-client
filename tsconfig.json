@@ -58,6 +58,7 @@
 
     /* Experimental Options */
     "experimentalDecorators": true,
+    "downlevelIteration": true,
     "emitDecoratorMetadata": true         /* Enables experimental support for emitting type metadata for decorators. */
   }
 }

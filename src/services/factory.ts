@@ -6,14 +6,21 @@ export class ServiceFactory {
   private readonly serviceList: Service[];
   private readonly smartServiceList: SmartService[];
 
+  private readonly vocabulary: Map<string, number>;
+
   public constructor(serviceList: Service[]) {
     this.serviceList = serviceList;
+    this.vocabulary = new Map();
 
-    for (const service of serviceList) {
+    serviceList.forEach((service: Service) => {
       if (service instanceof SmartService) {
         this.smartServiceList.push(service);
+
+        service.keywords.forEach((word: string) => {
+          this.vocabulary.set(word, (this.vocabulary.get(word)) || 0 + 1);
+        });
       }
-    }
+    });
   }
 
   public createService = (
@@ -45,59 +52,34 @@ export class ServiceFactory {
   private createSmartService = (
     text: string
   ): SmartService => {
-    let vocabulary = 0;
-    const keywordScore: Map<string, number> = new Map();
     const serviceScore: Map<SmartService, number> = new Map();
 
-    this.smartServiceList.forEach((service) => {
-      const keywords = service.keywords;
+    this.smartServiceList.forEach((smartService) => {
+      smartService.keywords.forEach((word) => {
+        if (text.indexOf(word) !== -1) {
+          const wordFrequency = this.vocabulary.get(word) || 1;
+          const termWeight = Math.log2(
+            this.smartServiceList.length / wordFrequency
+          );
 
-      vocabulary += keywords.length;
-      serviceScore.set(service, 0);
-
-      keywords.forEach((keyword) => {
-        keywordScore.set(keyword, (keywordScore.get(keyword) || 0) + 1);
-      });
-    });
-
-    this.smartServiceList.forEach((service) => {
-      const keywords = service.keywords;
-
-      keywords.forEach((keyword) => {
-        const keywordFrequency = keywordScore.get(keyword);
-
-        if (!keywordFrequency) {
-          throw new ServerError(REPLY.ERROR, 500);
-        }
-
-        if (text.indexOf(keyword) !== -1) {
-          const score = Math.log2(vocabulary / keywordFrequency);
-
-          const serviceCurrentScore = serviceScore.get(service);
-
-          if (!serviceCurrentScore) {
-            throw new ServerError(REPLY.ERROR, 500);
-          }
-
-          serviceScore.set(service, serviceCurrentScore + score);
+          serviceScore.set(
+            smartService,
+            (serviceScore.get(smartService) || 0) + termWeight,
+          );
         }
       });
     });
 
-    let desiredService: SmartService = this.smartServiceList[0];
+    let selectedService = this.smartServiceList[0];
+    let currentScore = serviceScore.get(selectedService);
 
     serviceScore.forEach((value, key) => {
-      const desiredServiceScore = serviceScore.get(desiredService);
-
-      if (!desiredServiceScore) {
-        throw new ServerError(REPLY.ERROR, 500);
-      }
-
-      if (desiredServiceScore < value) {
-        desiredService = key;
+      if (!currentScore || value > currentScore) {
+        selectedService = key;
+        currentScore = value;
       }
     });
 
-    return desiredService;
+    return selectedService;
   }
 }
