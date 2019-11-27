@@ -23,6 +23,7 @@ import { clientConfig } from '../config/config';
 export async function respond(
   event: WebhookEvent
 ): Promise<MessageAPIResponseBase | null> {
+  console.log(event);
   if (
     event.type !== 'message' ||
     event.message.type !== 'text' ||

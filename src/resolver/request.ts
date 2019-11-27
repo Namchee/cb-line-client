@@ -1,4 +1,3 @@
-import { clientConfig } from './../config/config';
 import { RequestBody } from '../types/types';
 
 /**
@@ -12,7 +11,7 @@ import { RequestBody } from '../types/types';
 export function makeRequest(userId: string, message: string): RequestBody {
   return {
     provider: 'line',
-    client: clientConfig.channelAccessToken,
+    client: userId,
     message: {
       userId,
       message,
