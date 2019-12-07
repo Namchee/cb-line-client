@@ -8,7 +8,7 @@ import { RESPOND } from './response';
 import { formatMessage } from '../services/formatter/factory';
 import { ServerError, isUserError } from '../types/error';
 import { ServiceFactory } from '../services/factory';
-import { Service, ServiceParameters } from '../services/service';
+import { Service, ServiceParameters } from '../services/base';
 
 export class Resolver {
   private readonly clientRepository: ClientRepository;
@@ -50,37 +50,27 @@ export class Resolver {
 
     let service = null;
 
-    if (userState) {
-      if (this.checkRequestExpiration(userState)) {
-        UserState.deleteState(providerName, userId);
+    try {
+      if (userState) {
+        if (this.checkRequestExpiration(userState)) {
+          UserState.deleteState(providerName, userId);
 
-        const message = formatMessage(providerName, RESPOND.EXPIRED);
+          const message = formatMessage(providerName, RESPOND.EXPIRED);
 
-        return res.status(400)
-          .json({
-            data: message,
-            error: null,
-          });
+          return res.status(400)
+            .json({
+              data: message,
+              error: null,
+            });
+        }
+
+        state = userState.state;
+        service = this.serviceFactory.createServiceByName(userState.service);
+      } else {
+        state = 0;
+        service = this.serviceFactory.createService(text);
       }
 
-      state = userState.state;
-      service = this.serviceFactory.createServiceByName(userState.service);
-    } else {
-      state = 0;
-      service = this.serviceFactory.createService(text);
-    }
-
-    if (!service) {
-      const message = formatMessage(providerName, RESPOND.UNPARSEABLE);
-
-      return res.status(400)
-        .json({
-          data: message,
-          error: null,
-        });
-    }
-
-    try {
       const processedText = userState ? userState.text + ' ' + text : text;
 
       const result = await service.handle(

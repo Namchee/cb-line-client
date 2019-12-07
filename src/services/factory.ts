@@ -1,6 +1,7 @@
-import { Service, SmartService } from './service';
-import { ServerError } from '../types/error';
+import { Service, SmartService } from './base';
+import { ServerError, UserError } from '../types/error';
 import { REPLY } from './reply';
+import { RESPOND } from '../resolver/response';
 
 export class ServiceFactory {
   private readonly serviceList: Service[];
@@ -10,6 +11,7 @@ export class ServiceFactory {
 
   public constructor(serviceList: Service[]) {
     this.serviceList = serviceList;
+    this.smartServiceList = [];
     this.vocabulary = new Map();
 
     serviceList.forEach((service: Service) => {
@@ -40,11 +42,11 @@ export class ServiceFactory {
   public createServiceByName = (
     name: string
   ): Service => {
-    this.serviceList.forEach((service) => {
+    for (const service of this.serviceList) {
       if (service.identifier === name) {
         return service;
       }
-    });
+    }
 
     throw new ServerError(REPLY.ERROR, 500);
   }
@@ -56,7 +58,9 @@ export class ServiceFactory {
 
     this.smartServiceList.forEach((smartService) => {
       smartService.keywords.forEach((word) => {
-        if (text.indexOf(word) !== -1) {
+        const pattern = new RegExp('\\b' + word + '\\b', 'gi');
+
+        if (pattern.test(text)) {
           const wordFrequency = this.vocabulary.get(word) || 1;
           const termWeight = Math.log2(
             this.smartServiceList.length / wordFrequency
@@ -79,6 +83,13 @@ export class ServiceFactory {
         currentScore = value;
       }
     });
+
+    if (
+      !serviceScore.get(selectedService) ||
+      serviceScore.get(selectedService) === 0
+    ) {
+      throw new UserError(RESPOND.UNPARSEABLE);
+    }
 
     return selectedService;
   }

@@ -6,7 +6,6 @@ import { Client } from './entity/client';
 import { Kelas } from './entity/kelas';
 import { MataKuliah } from './entity/mata-kuliah';
 import { Ruangan } from './entity/ruangan';
-import { UserAccount } from './entity/user-account';
 
 export const connection = createConnection({
   type: 'postgres',
@@ -18,6 +17,5 @@ export const connection = createConnection({
     Kelas,
     MataKuliah,
     Ruangan,
-    UserAccount,
   ],
 });

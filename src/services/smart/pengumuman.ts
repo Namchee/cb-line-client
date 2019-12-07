@@ -3,7 +3,7 @@ import {
   HandlerParameters,
   ServiceParameters,
   SmartService,
-} from '../service';
+} from '../base';
 import { UserAccountRepository } from '../../repository/user-account';
 import { ServerError } from '../../types/error';
 import { REPLY } from '../reply';
@@ -59,7 +59,7 @@ export class PengumumanService extends SmartService {
     }
 
     return {
-      state: 1,
+      state: 0,
       message: 'Hello from pengumuman service!',
     };
   }

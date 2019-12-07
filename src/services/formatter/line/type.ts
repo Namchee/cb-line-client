@@ -3,12 +3,11 @@ export interface TemplateType {
 }
 
 export interface ButtonsTemplate extends TemplateType {
-  text?: string;
+  text: string;
   actions: ActionButton[];
 }
 
 export interface CarouselTemplate extends TemplateType {
-  text?: string;
   columns: CarouselItem[];
 }
 

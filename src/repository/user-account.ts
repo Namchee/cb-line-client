@@ -1,49 +1,45 @@
-import {
-  EntityRepository,
-  EntityManager,
-  Repository as BaseRepository,
-} from 'typeorm';
-import { UserAccount } from '../database/entity/user-account';
-import { Repository } from './base';
-import { Account as AccountDatabase } from '../database/entity/account';
-import { Account as AccountEntity } from './../entity/account';
-import { User as UserDatabase } from './../database/entity/user';
-import { User as UserEntity } from './../entity/user';
+import { EntityRepository, Repository, EntityManager } from 'typeorm';
+import { Account as AccountDocument } from '../database/entity/account';
+import { Account } from './../entity/account';
+import { User as UserDocument } from './../database/entity/user';
+import { User } from './../entity/user';
 import { toEntity as toAccountEntity } from '../services/mapper/account';
 import { toEntity as toUserEntity } from './../services/mapper/user';
+import { CustomRepository } from './base';
+import { ServerError } from '../types/error';
 
 @EntityRepository()
-export class UserAccountRepository
-  extends Repository {
+export class UserAccountRepository extends CustomRepository {
   public constructor(manager: EntityManager) {
     super(manager);
   }
 
-  private get userAccountRepository(): BaseRepository<UserAccount> {
-    return this.manager.getRepository(UserAccount);
+  private get accountRepository(): Repository<AccountDocument> {
+    return this.manager.getRepository(AccountDocument);
   }
 
-  private get accountRepository(): BaseRepository<AccountDatabase> {
-    return this.manager.getRepository(AccountDatabase);
+  private get userRepository(): Repository<UserDocument> {
+    return this.manager.getRepository(UserDocument);
   }
 
   public exist = async (
     provider: string,
     account: string
   ): Promise<boolean> => {
-    const count = await this.userAccountRepository
-      .createQueryBuilder('useraccount')
-      .where('useraccount.provider = :provider', { provider })
-      .andWhere('useraccount.account = :account', { account })
-      .getOne();
+    const count = await this.accountRepository
+      .createQueryBuilder('account')
+      .leftJoin('account.user', 'user')
+      .where('account.provider = :provider', { provider })
+      .andWhere('account.account = :account', { account })
+      .getCount();
 
-    return count !== undefined;
+    return count >= 1;
   }
 
   public findUserByNomor = async (
     nomor: string
-  ): Promise<UserEntity | null> => {
-    const user = await this.manager.getRepository(UserDatabase)
+  ): Promise<User | null> => {
+    const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.nomor = :nomor', { nomor })
       .select([
@@ -62,107 +58,121 @@ export class UserAccountRepository
   public findUserByAccount = async (
     provider: string,
     account: string
-  ): Promise<UserEntity | null> => {
-    const user = await this.userAccountRepository
-      .createQueryBuilder('useraccount')
-      .where('useraccount.account = :account', { account })
-      .andWhere('useraccount.provider = :provider', { provider })
+  ): Promise<User | null> => {
+    const userDocument = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.account', 'account')
+      .where('account.account = :account', { account })
+      .andWhere('account.provider = :provider', { provider })
       .select([
-        'useraccount.id',
-        'useraccount.nama',
-        'useraccount.role',
-        'useraccount.nomor',
+        'user.id',
+        'user.nama',
+        'user.role',
+        'user.nomor',
       ])
       .getOne();
 
-    const cast = user as unknown as UserDatabase;
-
-    return cast ?
-      toUserEntity(cast) :
+    return userDocument ?
+      toUserEntity(userDocument) :
       null;
   }
 
-  public findClientAccount = async (
+  public findUserAccountByProvider = async (
     provider: string,
-    user: UserEntity
-  ): Promise<AccountEntity | null> => {
-    const clientAccount = await this.userAccountRepository
-      .createQueryBuilder('useraccount')
-      .where('useraccount.provider = :provider', { provider })
-      .andWhere('useraccount.nomor = :nomor', { nomor: user.nomor })
+    nomor: string,
+  ): Promise<Account | null> => {
+    const userAccount = await this.accountRepository
+      .createQueryBuilder('account')
+      .leftJoin('account.user', 'user')
+      .where('account.provider = :provider', { provider })
+      .andWhere('user.nomor = :nomor', { nomor })
       .select([
-        'useraccount.provider',
-        'useraccount.account',
+        'account.id',
+        'account.provider',
+        'account.account',
       ])
       .getOne();
 
-    const cast = clientAccount as unknown as AccountDatabase;
-
-    return cast ?
-      toAccountEntity(cast) :
+    return userAccount ?
+      toAccountEntity(userAccount) :
       null;
   }
 
-  public add = async (
+  public addUserAccount = async (
     provider: string,
     account: string,
-    user: UserEntity
+    nomor: string
   ): Promise<boolean> => {
     const exist = await this.exist(provider, account);
 
     if (exist) {
-      return false;
+      throw new ServerError('This user already has an account', 500);
     }
 
-    await this.accountRepository.query(`
-      INSERT INTO account
-        (provider, account, userId)
-      VALUES
-        ('${provider}', '${account}', '${user.id}')
-    `);
+    const user = await this.findUserByNomor(nomor);
 
-    return true;
+    if (!user) {
+      throw new ServerError('This user does not exist', 500);
+    }
+
+    const insertResult = await this.accountRepository
+      .createQueryBuilder('account')
+      .insert()
+      .into(AccountDocument)
+      .values({
+        provider,
+        account,
+        user: () => user.id.toString(),
+      })
+      .execute();
+
+    return insertResult.generatedMaps.length > 0;
   }
 
-  public delete = async (
+  public deleteUserAccount = async (
     provider: string,
     account: string,
   ): Promise<boolean> => {
     const exist = await this.exist(provider, account);
 
     if (!exist) {
-      return false;
+      throw new ServerError('Account does not exist', 500);
     }
 
-    await this.accountRepository.createQueryBuilder('account')
+    const deleteResult = await this.accountRepository
+      .createQueryBuilder('account')
       .delete()
-      .from(AccountDatabase)
+      .from(AccountDocument)
       .where('account.provider = :provider', { provider })
       .andWhere('account.account = :account', { account })
       .execute();
 
-    return true;
+    return !!deleteResult.affected;
   }
 
-  public move = async (
-    provider: string,
+  public updateUserAccount = async (
     account: string,
-    oldUser: UserEntity,
-    newUser: UserEntity
+    provider: string,
+    oldUser: User,
+    newUser: User,
   ): Promise<boolean> => {
-    const exist = await this.exist(provider, account);
+    const targetAccount = await this.findUserAccountByProvider(
+      provider,
+      oldUser.nomor,
+    );
 
-    if (!exist) {
-      return false;
+    if (!targetAccount) {
+      throw new ServerError('Account does not exist', 500);
     }
 
-    await this.accountRepository.query(`
-      UPDATE account
-      SET
-        userid = '${newUser.id}'
-      WHERE
-        userid = '${oldUser.id}'
-    `);
+    await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.account', 'account')
+      .where('account.provider = :provider', { provider })
+      .andWhere('account.account = :account', { account })
+      .relation(AccountDocument, 'user')
+      .of(targetAccount.id)
+      .set(newUser.id);
 
     return true;
   }

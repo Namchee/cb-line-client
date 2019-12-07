@@ -5,11 +5,14 @@ import {
   Index,
   ManyToMany,
   JoinTable,
+  BaseEntity,
+  OneToMany,
 } from 'typeorm';
 import { Kelas } from './kelas';
+import { Account } from './account';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,9 +26,12 @@ export class User {
   @Column({ type: 'smallint', nullable: false })
   role: number;
 
+  @OneToMany(type => Account, account => account.user)
+  account: Account[];
+
   @ManyToMany(type => Kelas)
   @JoinTable({
-    name: 'pesertamatakuliah',
+    name: 'pesertakelas',
     joinColumn: {
       name: 'userId',
       referencedColumnName: 'id',

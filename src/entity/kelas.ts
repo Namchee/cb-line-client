@@ -1,12 +1,5 @@
-import { MataKuliah } from './mata-kuliah';
-import { Ruangan } from './ruangan';
-import { User } from './user';
-
 export class Kelas {
   public readonly id: number;
-  public readonly mataKuliah: MataKuliah;
-  public readonly user: User[];
-  public readonly ruangan: Ruangan;
   public readonly kode: string;
   public readonly jenis: number;
   public readonly waktuMulai: Date;
@@ -15,9 +8,6 @@ export class Kelas {
 
   private constructor(
     id: number,
-    mataKuliah: MataKuliah,
-    user: User[],
-    ruangan: Ruangan,
     kode: string,
     jenis: number,
     waktuMulai: Date,
@@ -25,9 +15,6 @@ export class Kelas {
     hari: number
   ) {
     this.id = id;
-    this.mataKuliah = mataKuliah;
-    this.user = user;
-    this.ruangan = ruangan;
     this.kode = kode;
     this.jenis = jenis;
     this.waktuMulai = waktuMulai;
@@ -39,23 +26,17 @@ export class Kelas {
     id: number,
     jenis: number,
     kode: string,
-    mataKuliah: MataKuliah,
-    user: User[],
-    ruangan: Ruangan,
     waktuMulai: Date,
     waktuSelesai: Date,
     hari: number
   ): Kelas {
     return new Kelas(
       id,
-      mataKuliah,
-      user,
-      ruangan,
       kode,
       jenis,
       waktuMulai,
       waktuSelesai,
-      hari
+      hari,
     );
   }
 }

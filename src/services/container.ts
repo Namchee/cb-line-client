@@ -1,4 +1,4 @@
-import { Service } from './service';
+import { Service } from './base';
 import { DaftarService } from './user/daftar';
 import { GantiService } from './user/ganti';
 import { HapusService } from './user/hapus';
@@ -6,6 +6,8 @@ import { Connection } from 'typeorm';
 import { UserAccountRepository } from '../repository/user-account';
 import { PengumumanService } from './smart/pengumuman';
 import { JadwalService } from './smart/jadwal';
+import { RuanganRepository } from '../repository/ruangan';
+import { KelasRepository } from '../repository/kelas';
 
 export function initializeServices(
   conn: Connection
@@ -13,6 +15,8 @@ export function initializeServices(
   const serviceContainer: Service[] = [];
 
   const userAccountRepository = conn.getCustomRepository(UserAccountRepository);
+  const ruanganRepository = conn.getCustomRepository(RuanganRepository);
+  const kelasRepository = conn.getCustomRepository(KelasRepository);
 
   const daftarService = new DaftarService(userAccountRepository);
   const gantiService = new GantiService(userAccountRepository);
@@ -21,7 +25,7 @@ export function initializeServices(
   // smart service
 
   const pengumumanService = new PengumumanService(userAccountRepository);
-  const jadwalService = new JadwalService();
+  const jadwalService = new JadwalService(ruanganRepository, kelasRepository);
 
   serviceContainer.push(daftarService);
   serviceContainer.push(gantiService);

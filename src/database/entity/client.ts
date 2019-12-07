@@ -3,10 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Index,
+  BaseEntity,
 } from 'typeorm';
 
 @Entity()
-export class Client {
+export class Client extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

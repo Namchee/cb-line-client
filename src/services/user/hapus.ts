@@ -3,9 +3,8 @@ import {
   Service,
   ServiceParameters,
   HandlerParameters,
-} from './../service';
-import { REPLY } from './../reply';
-import { USER_REPLY } from './reply';
+} from '../base';
+import { REPLY, USER_REPLY } from './../reply';
 import { UserAccountRepository } from '../../repository/user-account';
 import { UserError, ServerError } from '../../types/error';
 
@@ -105,7 +104,14 @@ export class HapusService extends Service {
       throw new UserError(USER_REPLY.MISMATCHED_NOMOR);
     }
 
-    await this.userAccountRepository.delete(provider, account);
+    const deleteResult = await this.userAccountRepository.deleteUserAccount(
+      provider,
+      account
+    );
+
+    if (!deleteResult) {
+      throw new ServerError('Delete failed', 500);
+    }
 
     return {
       state: 0,

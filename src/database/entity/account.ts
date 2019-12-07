@@ -5,11 +5,12 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  BaseEntity,
 } from 'typeorm';
 import { User } from './user';
 
 @Entity()
-export class Account {
+export class Account extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,7 +21,7 @@ export class Account {
   @Index()
   account: string;
 
-  @ManyToOne(type => User)
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(type => User, user => user.account)
+  @JoinColumn({ name: 'userid' })
   user: User;
 }

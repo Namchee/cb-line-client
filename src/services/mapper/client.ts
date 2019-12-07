@@ -1,10 +1,10 @@
-import { Client as ClientDatabase } from '../../database/entity/client';
-import { Client as ClientEntity } from './../../entity/client';
+import { Client as ClientDocument } from '../../database/entity/client';
+import { Client } from './../../entity/client';
 
-export function toEntity(clientDocument: ClientDatabase): ClientEntity {
-  return ClientEntity.createClient(
-    clientDocument.nama,
-    clientDocument.client_id,
-    clientDocument.url
+export function toEntity(document: ClientDocument): Client {
+  return Client.createClient(
+    document.nama,
+    document.client_id,
+    document.url
   );
 }

@@ -5,8 +5,8 @@ import {
   ActionButton,
   CarouselItem,
 } from './type';
-import { Button } from '../type';
-import { isButtonArray, isStringArray } from '../type';
+import { TemplateMessage as BaseTemplateMessage } from './../../base';
+import { ServerError } from '../../../types/error';
 
 export abstract class LineMessage {
   public readonly type: string;
@@ -31,7 +31,7 @@ export abstract class LineMessage {
    * `false` kalau gak ada.
    * @memberof LineMessage
    */
-  public static isValidType(type: string): boolean {
+  private static isValidType(type: string): boolean {
     return type === 'text' ||
       type === 'template' ||
       type === 'image' ||
@@ -55,9 +55,11 @@ export class TextMessage extends LineMessage {
 
 abstract class TemplateMessage extends LineMessage {
   public readonly template: TemplateType;
+  public readonly altText: string;
 
   public constructor(template: TemplateType) {
     super('template');
+    this.altText = '\0';
     this.template = template;
   }
 }
@@ -94,10 +96,12 @@ export function generateCarouselItem(
 }
 
 export function generateButtonsTemplate(
+  text: string,
   buttons: ActionButton[]
 ): ButtonsTemplate {
   return {
     type: 'buttons',
+    text,
     actions: buttons,
   };
 }
@@ -112,35 +116,42 @@ export function generateCarouselTemplate(
 }
 
 export function generateLineMessage(
-  message: string | string[] | Button[]
-): any {
+  message: string | BaseTemplateMessage
+): LineMessage {
   if (typeof message === 'string') {
     return new TextMessage(message);
-  } else if (isStringArray(message)) {
-    const carouselItems: CarouselItem[] = [];
-
-    for (const item of message) {
-      carouselItems.push(generateCarouselItem(item));
-    }
-
-    const carouselTemplate: CarouselTemplate = generateCarouselTemplate(
-      carouselItems
-    );
-
-    return new CarouselMessage(carouselTemplate);
-  } else if (isButtonArray(message)) {
-    const actionButtons: ActionButton[] = [];
-
-    for (const button of message) {
-      actionButtons.push(generateActionButton(button.label, button.text));
-    }
-
-    const buttonsTemplate: ButtonsTemplate = generateButtonsTemplate(
-      actionButtons
-    );
-
-    return new ButtonsMessage(buttonsTemplate);
   } else {
-    throw new Error('Unsupported types');
+    switch (message.type) {
+      case 'buttons': {
+        const actionButtons = [];
+
+        for (const button of message.message) {
+          actionButtons.push(generateActionButton(button, button));
+        }
+
+        const buttonsTemplate = generateButtonsTemplate(
+          message.text,
+          actionButtons
+        );
+
+        return new ButtonsMessage(buttonsTemplate);
+      }
+      case 'carousel': {
+        const carouselItems: CarouselItem[] = [];
+
+        for (const column of message.message) {
+          carouselItems.push(generateCarouselItem(column));
+        }
+
+        const carouselTemplate: CarouselTemplate = generateCarouselTemplate(
+          carouselItems,
+        );
+
+        return new CarouselMessage(carouselTemplate);
+      }
+      default: {
+        throw new ServerError(`Unknown message type '${message.type}'`, 500);
+      }
+    }
   }
 }

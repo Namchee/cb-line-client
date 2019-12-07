@@ -4,12 +4,13 @@ import {
   JoinColumn,
   Column,
   ManyToOne,
+  BaseEntity,
 } from 'typeorm';
 import { MataKuliah } from './mata-kuliah';
 import { Ruangan } from './ruangan';
 
 @Entity()
-export class Kelas {
+export class Kelas extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -28,10 +29,10 @@ export class Kelas {
   ruangan: Ruangan;
 
   @Column({ type: 'time', nullable: false })
-  waktuMulai: Date;
+  waktumulai: string;
 
   @Column({ type: 'time', nullable: false })
-  waktuSelesai: Date;
+  waktuselesai: string;
 
   @Column({ type: 'smallint', nullable: false })
   hari: number;

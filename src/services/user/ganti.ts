@@ -3,9 +3,8 @@ import {
   Service,
   ServiceParameters,
   HandlerParameters,
-} from '../service';
-import { USER_REPLY } from './reply';
-import { REPLY } from '../reply';
+} from '../base';
+import { REPLY, USER_REPLY } from '../reply';
 import { UserAccountRepository } from '../../repository/user-account';
 import { UserError, ServerError } from '../../types/error';
 
@@ -131,10 +130,11 @@ export class GantiService extends Service {
       throw new UserError(USER_REPLY.NOT_REGISTERED);
     }
 
-    const clientAccount = await this.userAccountRepository.findClientAccount(
-      provider,
-      newUser
-    );
+    const clientAccount = await this.userAccountRepository
+      .findUserAccountByProvider(
+        provider,
+        text,
+      );
 
     if (clientAccount) {
       throw new UserError(USER_REPLY.ALREADY_REGISTERED);
@@ -154,7 +154,13 @@ export class GantiService extends Service {
       throw new UserError(USER_REPLY.SAME_NOMOR);
     }
 
-    await this.userAccountRepository.move(provider, account, oldUser, newUser);
+    await this.userAccountRepository
+      .updateUserAccount(
+        account,
+        provider,
+        oldUser,
+        newUser,
+      );
 
     return {
       state: 0,

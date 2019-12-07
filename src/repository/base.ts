@@ -1,8 +1,6 @@
-import {
-  EntityManager,
-} from 'typeorm';
+import { EntityManager } from 'typeorm';
 
-export abstract class Repository {
+export abstract class CustomRepository {
   protected readonly manager: EntityManager;
 
   public constructor(manager: EntityManager) {

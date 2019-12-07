@@ -1,9 +1,10 @@
-import { Account as AccountDatabase } from '../../database/entity/account';
-import { Account as AccountEntity } from '../../entity/account';
+import { Account as AccountDocument } from '../../database/entity/account';
+import { Account as Account } from '../../entity/account';
 
-export function toEntity(accountDocument: AccountDatabase): AccountEntity {
-  return AccountEntity.createAccount(
-    accountDocument.provider,
-    accountDocument.account,
+export function toEntity(document: AccountDocument): Account {
+  return Account.createAccount(
+    document.id,
+    document.provider,
+    document.account,
   );
 }

@@ -1,7 +1,6 @@
-import { Service, ServiceParameters, HandlerParameters } from './../service';
-import { ServiceResult } from './../service';
-import { USER_REPLY } from './reply';
-import { REPLY } from './../reply';
+import { Service, ServiceParameters, HandlerParameters } from '../base';
+import { ServiceResult } from '../base';
+import { REPLY, USER_REPLY } from './../reply';
 import { UserError, ServerError } from '../../types/error';
 import { UserAccountRepository } from '../../repository/user-account';
 
@@ -94,16 +93,17 @@ export class DaftarService extends Service {
       throw new UserError(USER_REPLY.NOT_REGISTERED);
     }
 
-    const clientAccount = await this.userAccountRepository.findClientAccount(
-      provider,
-      user
-    );
+    const clientAccount = await this.userAccountRepository
+      .findUserAccountByProvider(
+        provider,
+        text,
+      );
 
     if (clientAccount) {
       throw new UserError(USER_REPLY.ALREADY_REGISTERED);
     }
 
-    await this.userAccountRepository.add(provider, account, user);
+    await this.userAccountRepository.addUserAccount(provider, account, text);
 
     return {
       state: 0,

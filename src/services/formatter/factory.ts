@@ -1,9 +1,9 @@
 import { generateLineMessage } from './line/factory';
-import { Button } from './type';
+import { TemplateMessage } from '../base';
 
 export function formatMessage(
   provider: string,
-  message: string | string[] | Button[]
+  message: string | TemplateMessage
 ): any {
   switch (provider) {
     case 'line': return generateLineMessage(message);

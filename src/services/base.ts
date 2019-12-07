@@ -1,8 +1,12 @@
-import { Button } from './formatter/type';
+export interface TemplateMessage {
+  type: string;
+  text: string;
+  message: string[];
+}
 
 export interface ServiceResult {
   state: number;
-  message: string | string[] | Button[];
+  message: string | TemplateMessage;
 }
 
 export interface ServiceParameters {
