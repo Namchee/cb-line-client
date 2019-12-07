@@ -6,17 +6,20 @@ import {
   JoinColumn,
   BaseEntity,
 } from 'typeorm';
-import { MataKuliah } from './mata-kuliah';
+import { Matakuliah } from './mata-kuliah';
 
 @Entity()
 export class Pengumuman extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'date', nullable: false })
+  tanggal: Date;
+
+  @Column({ type: 'text', nullable: false })
   isiPengumuman: string;
 
-  @ManyToOne(type => MataKuliah)
+  @ManyToOne(type => Matakuliah)
   @JoinColumn({ name: 'matakuliahId' })
   matakuliahId: number;
 }

@@ -4,7 +4,7 @@ import { User } from './entity/user';
 import { Account } from './entity/account';
 import { Client } from './entity/client';
 import { Kelas } from './entity/kelas';
-import { MataKuliah } from './entity/mata-kuliah';
+import { Matakuliah } from './entity/mata-kuliah';
 import { Ruangan } from './entity/ruangan';
 
 export const connection = createConnection({
@@ -15,7 +15,7 @@ export const connection = createConnection({
     Account,
     Client,
     Kelas,
-    MataKuliah,
+    Matakuliah,
     Ruangan,
   ],
 });

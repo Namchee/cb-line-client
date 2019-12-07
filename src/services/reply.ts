@@ -33,4 +33,5 @@ export enum SMART_REPLY {
   RUANGAN_UNKNOWN = 'Ruangan yang anda cari tidak dikenali, mohon perbaiki masukkan anda.',
   RUANGAN_FREE = 'Pada hari ini, ruangan tersebut tidak digunakan untuk kelas apapun.',
   RUANGAN_HEADER = 'Pada hari ini, ruangan tersebut akan kosong pada: ',
+  CHOOSE_MATA_KULIAH = 'Silahkan masukkan nama mata kuliah yang diinginkan'
 }

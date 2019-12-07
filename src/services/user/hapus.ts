@@ -55,7 +55,17 @@ export class HapusService extends Service {
     const fragmentsLength = fragments.length;
 
     for (let i = state; i < handlerLength && i < fragmentsLength; i++) {
-      result = await this.handler[i]({ text: fragments[i], account, provider });
+      try {
+        result = await this.handler[i](
+          { text: fragments[i], account, provider }
+        );
+      } catch (e) {
+        if (result.state === -1) {
+          throw e;
+        }
+
+        break;
+      }
     }
 
     if (result.state === -1) {

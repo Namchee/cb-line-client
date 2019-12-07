@@ -24,7 +24,15 @@ export class JadwalService extends SmartService {
     this.identifier = 'jadwal';
     this.userRelated = false;
     this.handler = [this.handleFirstState, this.handleSecondState];
-    this.keywords = ['cari', 'carikan', 'jadwal', 'kosong'];
+    this.keywords = [
+      'tolong',
+      'cari',
+      'carikan',
+      'jadwal',
+      'kosong',
+      'untuk',
+      'ruangan',
+    ];
     this.ruanganRepository = ruanganRepository;
     this.kelasRepository = kelasRepository;
   }
@@ -44,6 +52,10 @@ export class JadwalService extends SmartService {
       try {
         result = await this.handler[i]({ text });
       } catch (e) {
+        if (result.state === -1) {
+          throw e;
+        }
+
         break;
       }
     }
@@ -120,7 +132,7 @@ export class JadwalService extends SmartService {
       return SMART_REPLY.RUANGAN_FREE;
     }
 
-    let text = SMART_REPLY.RUANGAN_HEADER + '\n\n';
+    let text = SMART_REPLY.RUANGAN_HEADER + '\n';
     const dateHelper = new Date();
     dateHelper.setHours(7, 0, 0, 0);
 
@@ -141,8 +153,7 @@ export class JadwalService extends SmartService {
         text +=
           format(jadwal[i].waktuSelesai, 'HH:mm:ss') +
           ' - ' +
-          format(jadwal[i + 1].waktuMulai, 'HH:mm:ss') +
-          '\n';
+          format(jadwal[i + 1].waktuMulai, 'HH:mm:ss');
       }
     }
 

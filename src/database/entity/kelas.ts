@@ -6,7 +6,7 @@ import {
   ManyToOne,
   BaseEntity,
 } from 'typeorm';
-import { MataKuliah } from './mata-kuliah';
+import { Matakuliah } from './mata-kuliah';
 import { Ruangan } from './ruangan';
 
 @Entity()
@@ -14,14 +14,14 @@ export class Kelas extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(type => MataKuliah)
+  @ManyToOne(type => Matakuliah)
   @JoinColumn({ name: 'matakuliah' })
-  mataKuliah: MataKuliah;
+  mataKuliah: Matakuliah;
 
-  @Column('smallint')
+  @Column({ type: 'smallint', nullable: false })
   jenis: number;
 
-  @Column({ type: 'varchar', length: 3 })
+  @Column({ type: 'varchar', length: 3, nullable: false })
   kode: string;
 
   @ManyToOne(type => Ruangan)

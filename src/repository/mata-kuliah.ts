@@ -1,9 +1,10 @@
 import { CustomRepository } from './base';
 import { EntityRepository, EntityManager, Repository } from 'typeorm';
 import {
-  MataKuliah as MataKuliahDocument,
+  Matakuliah as MataKuliahDocument,
 } from '../database/entity/mata-kuliah';
-import { User } from '../database/entity/user';
+import { User } from '../entity/user';
+import { User as UserDocument } from './../database/entity/user';
 import { MataKuliah } from '../entity/mata-kuliah';
 import { Kelas } from '../database/entity/kelas';
 import { toEntity } from '../services/mapper/mata-kuliah';
@@ -18,14 +19,40 @@ export class MataKuliahRepository extends CustomRepository {
     return this.manager.getRepository(MataKuliahDocument);
   }
 
-  public getUserMataKuliah = async (
+  public findByKode = async (
+    kode: string
+  ): Promise<MataKuliah | null> => {
+    const mataKuliahDocument = await this.repository
+      .createQueryBuilder('matakuliah')
+      .where('matakuliah.kode = :kode', { kode })
+      .getOne();
+
+    return mataKuliahDocument ?
+      toEntity(mataKuliahDocument) :
+      null;
+  }
+
+  public findByNama = async (
+    nama: string
+  ): Promise<MataKuliah | null> => {
+    const mataKuliahDocument = await this.repository
+      .createQueryBuilder('matakuliah')
+      .where(
+        'UPPER(matakuliah.nama) LIKE %:nama%', { nama: nama.toUpperCase() }
+      )
+      .getOne();
+
+    return mataKuliahDocument ?
+      toEntity(mataKuliahDocument) :
+      null;
+  }
+
+  public findUserMataKuliah = async (
     user: User
   ): Promise<MataKuliah[]> => {
-    const subQuery = this.manager.getRepository(User)
+    const subQuery = this.manager.getRepository(UserDocument)
       .createQueryBuilder('user')
-      .subQuery()
-      .where('user.id = :id', { id: user.id })
-      .getQuery();
+      .where('user.id = :id', { id: user.id });
 
     const mataKuliahDocuments = await this.repository
       .createQueryBuilder('matakuliah')
@@ -33,9 +60,14 @@ export class MataKuliahRepository extends CustomRepository {
       .innerJoin(
         'pesertakelas',
         'pesertakelas',
-        'pesertakelas.kelasId = kelas.id',
+        'pesertakelas.kelasid = kelas.id',
       )
-      .innerJoin('(' + subQuery + ')', 'selected_user')
+      .innerJoin(
+        '(' + subQuery.getQuery() + ')',
+        'selected_user',
+        'selected_user.user_id = pesertakelas.userid'
+      )
+      .setParameters(subQuery.getParameters())
       .getMany();
 
     const mataKuliahList: MataKuliah[] = [];

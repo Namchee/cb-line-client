@@ -5,22 +5,34 @@ import {
   SmartService,
 } from '../base';
 import { UserAccountRepository } from '../../repository/user-account';
-import { ServerError } from '../../types/error';
-import { REPLY } from '../reply';
+import { ServerError, UserError } from '../../types/error';
+import { REPLY, USER_REPLY, SMART_REPLY } from '../reply';
+import { MataKuliahRepository } from '../../repository/mata-kuliah';
 
 export class PengumumanService extends SmartService {
   private readonly userAccountRepository: UserAccountRepository;
+  private readonly mataKuliahRepository: MataKuliahRepository;
 
   public constructor(
-    userAccountRepository: UserAccountRepository
+    userAccountRepository: UserAccountRepository,
+    mataKuliahRepository: MataKuliahRepository,
   ) {
     super();
 
-    this.userAccountRepository = userAccountRepository;
     this.identifier = 'pengumuman';
     this.userRelated = true;
     this.handler = [this.handleFirstState];
-    this.keywords = ['cari', 'carikan', 'pengumuman'];
+    this.keywords = [
+      'tolong',
+      'cari',
+      'carikan',
+      'pengumuman',
+      'untuk',
+      'mata',
+      'kuliah',
+    ];
+    this.userAccountRepository = userAccountRepository;
+    this.mataKuliahRepository = mataKuliahRepository;
   }
 
   public handle = async (
@@ -31,6 +43,16 @@ export class PengumumanService extends SmartService {
       provider,
     }: ServiceParameters
   ): Promise<ServiceResult> => {
+    if (!account || !provider) {
+      throw new ServerError(REPLY.ERROR, 500);
+    }
+
+    const user = await this.userAccountRepository.exist(provider, account);
+
+    if (!user) {
+      throw new UserError(USER_REPLY.NO_ASSOCIATE);
+    }
+
     let result: ServiceResult = {
       state: -1,
       message: '',
@@ -58,9 +80,18 @@ export class PengumumanService extends SmartService {
       throw new ServerError(REPLY.ERROR, 500);
     }
 
+    const user = await this.userAccountRepository.findUserByAccount(
+      provider,
+      account
+    );
+
+    if (!user) {
+      throw new UserError(USER_REPLY.NO_ASSOCIATE);
+    }
+
     return {
       state: 0,
-      message: 'Hello from pengumuman service!',
+      message: SMART_REPLY.CHOOSE_MATA_KULIAH,
     };
   }
 }

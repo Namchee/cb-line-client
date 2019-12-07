@@ -21,9 +21,9 @@ export class KelasRepository extends CustomRepository {
   ): Promise<Kelas[]> => {
     const schedules = await this.repository
       .createQueryBuilder('kelas')
-      .innerJoinAndSelect('kelas.ruangan', 'ruangan')
       .where('ruangan.nama = :nama', { nama: ruangan.nama })
       .andWhere('kelas.hari = :hari', { hari: dayOfWeek })
+      .innerJoinAndSelect('kelas.ruangan', 'ruangan')
       .select([
         'kelas.waktumulai',
         'kelas.waktuselesai',

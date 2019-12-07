@@ -14,10 +14,10 @@ export class Account extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Column({ type: 'varchar', length: 10, nullable: false })
   provider: string;
 
-  @Column('text')
+  @Column({ type: 'text', nullable: false })
   @Index()
   account: string;
 

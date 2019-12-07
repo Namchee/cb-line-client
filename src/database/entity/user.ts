@@ -16,11 +16,11 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Column({ type: 'varchar', length: 10, nullable: false })
   @Index()
   nomor: string;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Column({ type: 'varchar', length: 10, nullable: false })
   nama: string;
 
   @Column({ type: 'smallint', nullable: false })

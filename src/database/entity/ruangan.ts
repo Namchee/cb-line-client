@@ -11,7 +11,7 @@ export class Ruangan extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 5 })
+  @Column({ type: 'varchar', length: 5, nullable: false })
   @Index()
   nama: string;
 }

@@ -1,5 +1,5 @@
 import {
-  MataKuliah as MataKuliahDocument,
+  Matakuliah as MataKuliahDocument,
 } from '../../database/entity/mata-kuliah';
 import { MataKuliah } from '../../entity/mata-kuliah';
 
