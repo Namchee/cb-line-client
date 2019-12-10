@@ -6,7 +6,8 @@ import {
 } from '../base';
 import { REPLY, USER_REPLY } from './../reply';
 import { UserAccountRepository } from '../../repository/user-account';
-import { UserError, ServerError } from '../../types/error';
+import { UserError, ServerError, isUserError } from '../../types/error';
+import { Message, MessageBody } from '../message/type';
 
 export class HapusService extends Service {
   private readonly userAccountRepository: UserAccountRepository;
@@ -48,7 +49,7 @@ export class HapusService extends Service {
 
     let result: ServiceResult = {
       state: -1,
-      message: '',
+      message: [],
     };
 
     const handlerLength = this.handler.length;
@@ -60,9 +61,21 @@ export class HapusService extends Service {
           { text: fragments[i], account, provider }
         );
       } catch (e) {
-        if (result.state === -1) {
+        if (result.state === -1 || i === 0 || !isUserError(e)) {
           throw e;
         }
+
+        const err = e as UserError;
+
+        result = {
+          state: result.state,
+          message: [
+            Message.createTextMessage([
+              MessageBody.createTextBody(err.message),
+            ]),
+            ...result.message,
+          ],
+        };
 
         break;
       }
@@ -86,7 +99,11 @@ export class HapusService extends Service {
 
     return {
       state: 1,
-      message: USER_REPLY.INPUT_ASSOCIATE,
+      message: [
+        Message.createTextMessage([
+          MessageBody.createTextBody(USER_REPLY.INPUT_ASSOCIATE),
+        ]),
+      ],
     };
   }
 
@@ -125,7 +142,11 @@ export class HapusService extends Service {
 
     return {
       state: 0,
-      message: USER_REPLY.DELETE_SUCCESS,
+      message: [
+        Message.createTextMessage([
+          MessageBody.createTextBody(USER_REPLY.DELETE_SUCCESS),
+        ]),
+      ],
     };
   }
 }

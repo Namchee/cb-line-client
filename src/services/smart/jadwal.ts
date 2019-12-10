@@ -4,12 +4,14 @@ import {
   HandlerParameters,
   SmartService,
 } from '../base';
-import { ServerError, UserError } from '../../types/error';
+import { ServerError, UserError, isUserError } from '../../types/error';
 import { REPLY, SMART_REPLY } from '../reply';
 import { RuanganRepository } from '../../repository/ruangan';
 import { KelasRepository } from '../../repository/kelas';
 import { Kelas } from '../../entity/kelas';
 import { format } from 'date-fns';
+import { Message, MessageBody } from '../message/type';
+import { jadwal } from './../../database/dummies/svc-id.json';
 
 export class JadwalService extends SmartService {
   private readonly ruanganRepository: RuanganRepository;
@@ -24,15 +26,7 @@ export class JadwalService extends SmartService {
     this.identifier = 'jadwal';
     this.userRelated = false;
     this.handler = [this.handleFirstState, this.handleSecondState];
-    this.keywords = [
-      'tolong',
-      'cari',
-      'carikan',
-      'jadwal',
-      'kosong',
-      'untuk',
-      'ruangan',
-    ];
+    this.keywords = jadwal;
     this.ruanganRepository = ruanganRepository;
     this.kelasRepository = kelasRepository;
   }
@@ -45,16 +39,28 @@ export class JadwalService extends SmartService {
   ): Promise<ServiceResult> => {
     let result: ServiceResult = {
       state: -1,
-      message: '',
+      message: [],
     };
 
     for (let i = state; i < this.handler.length; i++) {
       try {
         result = await this.handler[i]({ text });
       } catch (e) {
-        if (result.state === -1) {
+        if (result.state === -1 || i === 0 || !isUserError(e)) {
           throw e;
         }
+
+        const err = e as UserError;
+
+        result = {
+          state: result.state,
+          message: [
+            Message.createTextMessage([
+              MessageBody.createTextBody(err.message),
+            ]),
+            ...result.message,
+          ],
+        };
 
         break;
       }
@@ -68,23 +74,26 @@ export class JadwalService extends SmartService {
   }
 
   private handleFirstState = async (
-    {}: HandlerParameters
+    { }: HandlerParameters
   ): Promise<ServiceResult> => {
     const ruanganArray = await this.ruanganRepository.findAll();
 
-    const buttonArray: string[] = [];
+    const buttonArray: MessageBody[] = [];
 
     for (const ruangan of ruanganArray) {
-      buttonArray.push(ruangan.nama);
+      buttonArray.push(
+        MessageBody.createButtonBody(ruangan.nama, ruangan.nama)
+      );
     }
 
     return {
       state: 1,
-      message: {
-        type: 'buttons',
-        text: SMART_REPLY.CHOOSE_RUANGAN,
-        message: buttonArray,
-      },
+      message: [
+        Message.createButtonsMessage([
+          MessageBody.createTextBody(SMART_REPLY.CHOOSE_RUANGAN),
+          ...buttonArray,
+        ]),
+      ],
     };
   }
 
@@ -111,7 +120,11 @@ export class JadwalService extends SmartService {
 
         return {
           state: 0,
-          message,
+          message: [
+            Message.createTextMessage([
+              MessageBody.createTextBody(message),
+            ]),
+          ],
         };
       }
     }
@@ -166,9 +179,9 @@ export class JadwalService extends SmartService {
         text += '\n';
       }
       text +=
-          format(jadwal[jadwal.length - 1].waktuSelesai, 'HH:mm:ss') +
-          ' - ' +
-          format(dateHelper, 'HH:mm:ss');
+        format(jadwal[jadwal.length - 1].waktuSelesai, 'HH:mm:ss') +
+        ' - ' +
+        format(dateHelper, 'HH:mm:ss');
     }
 
     return text;

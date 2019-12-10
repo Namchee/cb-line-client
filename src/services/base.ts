@@ -1,12 +1,8 @@
-export interface TemplateMessage {
-  type: string;
-  text: string;
-  message: string[];
-}
+import { Message } from './message/type';
 
 export interface ServiceResult {
   state: number;
-  message: string | TemplateMessage;
+  message: Message[];
 }
 
 export interface ServiceParameters {

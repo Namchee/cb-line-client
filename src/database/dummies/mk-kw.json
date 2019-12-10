@@ -1,0 +1,31 @@
+{
+    "mataKuliah": [
+        {
+            "id": "AIF-182105.02",
+            "keywords": [
+                "Pemrograman",
+                "Berorientasi",
+                "Objek",
+                "PBO"
+            ]
+        },
+        {
+            "id": "AIF-183111.03",
+            "keywords": [
+                "Interaksi",
+                "Manusia",
+                "Komputer",
+                "IMK"
+            ]
+        },
+        {
+            "id": "AIF-183107.03",
+            "keywords": [
+                "Pengantar",
+                "Sistem",
+                "Cerdas",
+                "PSC"
+            ]
+        }
+    ]
+}

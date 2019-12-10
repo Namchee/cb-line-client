@@ -9,6 +9,7 @@ import { JadwalService } from './smart/jadwal';
 import { RuanganRepository } from '../repository/ruangan';
 import { KelasRepository } from '../repository/kelas';
 import { MataKuliahRepository } from '../repository/mata-kuliah';
+import { PengumumanRepository } from '../repository/pengumuman';
 
 export function initializeServices(
   conn: Connection
@@ -19,6 +20,7 @@ export function initializeServices(
   const ruanganRepository = conn.getCustomRepository(RuanganRepository);
   const kelasRepository = conn.getCustomRepository(KelasRepository);
   const mataKuliahRepository = conn.getCustomRepository(MataKuliahRepository);
+  const pengumumanRepository = conn.getCustomRepository(PengumumanRepository);
 
   const daftarService = new DaftarService(userAccountRepository);
   const gantiService = new GantiService(userAccountRepository);
@@ -28,7 +30,8 @@ export function initializeServices(
 
   const pengumumanService = new PengumumanService(
     userAccountRepository,
-    mataKuliahRepository
+    mataKuliahRepository,
+    pengumumanRepository
   );
   const jadwalService = new JadwalService(ruanganRepository, kelasRepository);
 

@@ -14,12 +14,12 @@ export class Pengumuman extends BaseEntity {
   id: number;
 
   @Column({ type: 'date', nullable: false })
-  tanggal: Date;
+  tanggal: string;
 
   @Column({ type: 'text', nullable: false })
-  isiPengumuman: string;
+  isipengumuman: string;
 
   @ManyToOne(type => Matakuliah)
-  @JoinColumn({ name: 'matakuliahId' })
-  matakuliahId: number;
+  @JoinColumn({ name: 'matakuliahid' })
+  matakuliahid: number;
 }

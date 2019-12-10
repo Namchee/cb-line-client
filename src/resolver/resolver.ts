@@ -5,10 +5,11 @@ import { Request, Response } from 'express';
 import { NextFunction } from 'connect';
 import { provider } from '../types/provider';
 import { RESPOND } from './response';
-import { formatMessage } from '../services/formatter/factory';
+import { formatMessage } from '../services/message/factory';
 import { ServerError, isUserError } from '../types/error';
 import { ServiceFactory } from '../services/factory';
 import { Service, ServiceParameters } from '../services/base';
+import { Message, MessageBody } from '../services/message/type';
 
 export class Resolver {
   private readonly clientRepository: ClientRepository;
@@ -55,7 +56,11 @@ export class Resolver {
         if (this.checkRequestExpiration(userState)) {
           UserState.deleteState(providerName, userId);
 
-          const message = formatMessage(providerName, RESPOND.EXPIRED);
+          const message = formatMessage(providerName, [
+            Message.createTextMessage([
+              MessageBody.createTextBody(RESPOND.EXPIRED),
+            ]),
+          ]);
 
           return res.status(400)
             .json({
@@ -100,7 +105,11 @@ export class Resolver {
         });
     } catch (err) {
       if (isUserError(err)) {
-        const message = formatMessage(providerName, err.message);
+        const message = formatMessage(providerName, [
+          Message.createTextMessage([
+            MessageBody.createTextBody(err.message),
+          ]),
+        ]);
 
         return res.status(400)
           .json({

@@ -1,8 +1,9 @@
 import { Service, ServiceParameters, HandlerParameters } from '../base';
 import { ServiceResult } from '../base';
 import { REPLY, USER_REPLY } from './../reply';
-import { UserError, ServerError } from '../../types/error';
+import { UserError, ServerError, isUserError } from '../../types/error';
 import { UserAccountRepository } from '../../repository/user-account';
+import { Message, MessageBody } from '../message/type';
 
 export class DaftarService extends Service {
   private readonly userAccountRepository: UserAccountRepository;
@@ -44,7 +45,7 @@ export class DaftarService extends Service {
 
     let result: ServiceResult = {
       state: -1,
-      message: '',
+      message: [],
     };
 
     const handlerLength = this.handler.length;
@@ -56,9 +57,21 @@ export class DaftarService extends Service {
           { text: fragments[i], account, provider }
         );
       } catch (e) {
-        if (result.state === -1) {
+        if (result.state === -1 || i === 0 || !isUserError(e)) {
           throw e;
         }
+
+        const err = e as UserError;
+
+        result = {
+          state: result.state,
+          message: [
+            Message.createTextMessage([
+              MessageBody.createTextBody(err.message),
+            ]),
+            ...result.message,
+          ],
+        };
 
         break;
       }
@@ -82,7 +95,13 @@ export class DaftarService extends Service {
 
     return {
       state: 1,
-      message: USER_REPLY.INPUT_NOMOR,
+      message: [
+        Message.createTextMessage(
+          [
+            MessageBody.createTextBody(USER_REPLY.INPUT_NOMOR),
+          ]
+        ),
+      ],
     };
   }
 
@@ -117,7 +136,13 @@ export class DaftarService extends Service {
 
     return {
       state: 0,
-      message: USER_REPLY.CREATE_SUCCESS,
+      message: [
+        Message.createTextMessage(
+          [
+            MessageBody.createTextBody(USER_REPLY.CREATE_SUCCESS),
+          ]
+        ),
+      ],
     };
   }
 }
