@@ -23,7 +23,7 @@ Wombatable adalah sebuah service yang menyediakan layanan pencarian pengumuman d
 2. [Express](http://expressjs.com/) - Framework Back End
 3. [Typescript](https://www.typescriptlang.org/) - _Typed_ JavaScript
 4. [TypeORM](typeorm.io) - ORM untuk JavaScript
-5. [PostGreSQL](https://www.postgresql.org/) - Basis Data SQL
+5. [PostGreSQL](https://www.postgresql.org/) - Basis Data untuk SQL
 
 > Lihat `package.json` untuk keterangan lebih lanjut mengenai versi yang digunakan
 
