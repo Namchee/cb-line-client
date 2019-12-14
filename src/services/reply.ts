@@ -5,7 +5,7 @@
  */
 export enum REPLY {
   WRONG_FORMAT ='Permintaan anda tidak dapat dimengerti, mohon perbaiki perintah anda.',
-  ERROR = 'Terjadi error pada server, mohon hubungi developer.',
+  ERROR = 'Terjadi error pada server, mohon perhatikan line terjadinya error',
 }
 
 /**
@@ -35,5 +35,5 @@ export enum SMART_REPLY {
   RUANGAN_HEADER = 'Pada hari ini, ruangan tersebut akan kosong pada: ',
   CHOOSE_MATA_KULIAH = 'Silahkan masukkan nama mata kuliah yang diinginkan.',
   MATA_KULIAH_UNKNOWN = 'Mata kuliah yang dicari tidak dapat dikenali.',
-  NO_PENGUMUMAN = 'Tidak ada pengumuman untuk mata kuliah tersebut'
+  NO_PENGUMUMAN = 'Belum ada pengumuman untuk mata kuliah tersebut.'
 }

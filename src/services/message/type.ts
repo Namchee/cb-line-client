@@ -55,6 +55,10 @@ export class Message {
   }
 
   public static createTextMessage(body: MessageBody[]): Message {
+    if (body.length > 1) {
+      throw new ServerError('"base" message can only have one body', 500);
+    }
+
     return new Message('base', body);
   }
 
@@ -63,7 +67,7 @@ export class Message {
 
     if (!isButtonInside) {
       throw new ServerError(
-        'Invalid type "button", the message does not contain button',
+        'Invalid message type "button", the message does not contain button',
         500
       );
     }

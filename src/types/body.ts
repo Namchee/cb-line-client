@@ -1,3 +1,6 @@
+/**
+ * A type which declares how the request body must be formatted
+ */
 export interface RequestBody {
   provider: string;
   client: string;
@@ -7,6 +10,11 @@ export interface RequestBody {
   };
 }
 
+/**
+ * A type guard for `RequestBody`
+ * @param {object} object The object in question
+ * @return {object} object casted to `RequestBody` if `true`, `false` otherwise
+ */
 export function isRequestBody(object: any): object is RequestBody {
   return object && object.provider &&
     typeof object.provider === 'string' &&

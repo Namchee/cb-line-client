@@ -48,7 +48,6 @@ export class Resolver {
     const userState = UserState.getState(body.provider, body.message.userId);
 
     let state: number;
-
     let service = null;
 
     try {
@@ -116,9 +115,9 @@ export class Resolver {
             data: message,
             error: null,
           });
-      } else {
-        return next(err);
       }
+
+      return next(err);
     }
   }
 

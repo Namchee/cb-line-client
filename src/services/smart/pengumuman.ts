@@ -71,23 +71,11 @@ export class PengumumanService extends SmartService {
       try {
         result = await this.handler[i]({ text, account, provider });
       } catch (e) {
-        if (result.state === -1 || i === 0 || !isUserError(e)) {
-          throw e;
+        if (result.state !== -1 && isUserError(e)) {
+          break;
         }
 
-        const err = e as UserError;
-
-        result = {
-          state: result.state,
-          message: [
-            Message.createTextMessage([
-              MessageBody.createTextBody(err.message),
-            ]),
-            ...result.message,
-          ],
-        };
-
-        break;
+        throw e;
       }
     }
 

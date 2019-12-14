@@ -7,9 +7,19 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): Response {
-  return res.status(err.status || 500)
-    .json({
-      data: null,
-      error: err.message,
-    });
+  if (err.status === 500) {
+    console.error(err);
+
+    return res.status(500)
+      .json({
+        data: null,
+        message: 'Terdapat error pada server, mohon hubungi developer',
+      });
+  } else {
+    return res.status(err.status)
+      .json({
+        data: null,
+        error: err.message,
+      });
+  }
 }

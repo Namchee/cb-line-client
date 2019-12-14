@@ -57,7 +57,7 @@ export class DaftarService extends Service {
           { text: fragments[i], account, provider }
         );
       } catch (e) {
-        if (result.state === -1 || i === 0 || !isUserError(e)) {
+        if (result.state === -1 || !isUserError(e)) {
           throw e;
         }
 

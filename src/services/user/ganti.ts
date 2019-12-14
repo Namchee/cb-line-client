@@ -64,23 +64,23 @@ export class GantiService extends Service {
           { text: fragments[i], account, provider }
         );
       } catch (e) {
-        if (result.state === -1 || i === 0 || !isUserError(e)) {
+        if (result.state === -1 || isUserError(e)) {
           throw e;
-        } else {
-          const err = e as UserError;
-
-          result = {
-            state: result.state,
-            message: [
-              Message.createTextMessage([
-                MessageBody.createTextBody(err.message),
-              ]),
-              ...result.message,
-            ],
-          };
-          
-          break;
         }
+
+        const err = e as UserError;
+
+        result = {
+          state: result.state,
+          message: [
+            Message.createTextMessage([
+              MessageBody.createTextBody(err.message),
+            ]),
+            ...result.message,
+          ],
+        };
+
+        break;
       }
     }
 

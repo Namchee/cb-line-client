@@ -1,10 +1,29 @@
+/**
+ * A type declaration for user state
+ */
 export interface State {
+  /**
+   * The identifier for current service which binds the user
+   */
   service: string;
+  /**
+   * The state number for service handler
+   */
   state: number;
+  /**
+   * The accumulated text
+   */
   text: string;
+  /**
+   * Last request time, to check if the request has been expired or not
+   */
   last_updated: Date;
 }
 
+/**
+ * Class which manages user states
+ * It uses provider and user id to map the user's state
+ */
 export class UserState {
   private static readonly userState = new Map<string, State>();
 
