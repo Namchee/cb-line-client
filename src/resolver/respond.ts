@@ -23,7 +23,6 @@ import { clientConfig } from '../config/config';
 export async function respond(
   event: WebhookEvent
 ): Promise<MessageAPIResponseBase | null> {
-  console.log(event);
   if (
     event.type !== 'message' ||
     event.message.type !== 'text' ||
@@ -42,11 +41,15 @@ export async function respond(
       data: reqBody,
     });
 
+    const data = response.data.data;
+
+    if (Array.isArray(data)) {
+      return lineClient.pushMessage(event.source.userId, data);
+    }
+
     return lineClient.replyMessage(event.replyToken, response.data.data);
   } catch (err) {
-    if (err.response.data.data) {
-      return lineClient.replyMessage(event.replyToken, err.response.data.data);
-    } else if (err.code === 'ECONNABORTED') {
+    if (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED') {
       const message: TextMessage = {
         type: 'text',
         // eslint-disable-next-line max-len
@@ -54,6 +57,8 @@ export async function respond(
       };
 
       return lineClient.replyMessage(event.replyToken, message);
+    } else if (err.response.data.data) {
+      return lineClient.replyMessage(event.replyToken, err.response.data.data);
     } else {
       console.error(`Failed with status code ${err.response.status}`);
       console.error(err.response.data.error);
