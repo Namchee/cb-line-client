@@ -1,14 +1,14 @@
-### Wombatable LINE Client
+# Wombatable LINE Client
 
 _Sample_ dari _client_ untuk aplikasi [LINE](https://line.me/en-US/download) yang meng-_consume_ API dari Wombatable
 
-### Memulai
+## Memulai
 
-## Prasyarat
+### Prasyarat
 
 1. NodeJS 8.0.0+
 
-## Instalasi
+### Instalasi
 
 1. Clone repository ini
 2. Buka terminal anda
